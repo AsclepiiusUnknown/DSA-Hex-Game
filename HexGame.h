@@ -46,16 +46,16 @@ void HexGame::play()
 			return;
 		}
 		else
-			system("CLS");
+			system("CLS"); //Clear screen after move
 
-		cout << player[playerIndex]->getPlayerName() << " plays " << " ("
-			 << x + 1 << ", " << y + 1 << "):" << endl;
+		cout << player[playerIndex]->getPlayerName() << " played ";
+		board->printCoord(x+1,y+1,true);
 
 		if (!board->addMove(playerType, x, y))
 			return;
 
-		board->printBoard();
-		won = board->checkWinningStatus(playerType);
+		//board->printBoard(); //moved to within the add move function
+		won = board->checkWinningStatus(playerType, x, y);
 		if(won == playerType)
 			cout << player[playerIndex]->getPlayerName() << " player wins!" << endl;
 	}

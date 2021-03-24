@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1616572301 source:c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\main.cpp
+1616584397 source:c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\main.cpp
 	<iostream>
 	<string>
 	"Board.h"
@@ -8,14 +8,16 @@
 	"HexGame.h"
 	"RandomPlayer.h"
 
-1616577291 c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\board.h
+1616629026 c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\board.h
 	<vector>
+	<stack>
+	<algorithm>
 
 1613904637 c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\player.h
 
 1616376427 c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\humanplayer.h
 
-1616577125 c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\hexgame.h
+1616627882 c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\hexgame.h
 
 1616392894 c:\users\ascle\desktop\uni\dsa\assignments\assignment 1 - hex game\dsa-hex-game\randomplayer.h
 	<time.h>

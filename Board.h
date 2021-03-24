@@ -9,6 +9,8 @@
 #define BOARD_H_
 
 #include<vector>
+#include<stack>
+#include<algorithm>
 
 class Board
 {
@@ -82,12 +84,27 @@ class Board
 
 		bool addMove(int playerIndex, int x, int y);
 
-		int checkWinningStatus(int playerIndex);
+		int checkWinningStatus(int playerType, int x, int y);
+		int lineWin(int playerType);
+		bool backtrackWin(int playerType, int x, int y);
 
 		void printBoard();
 
 		bool isBoardFull();
 		bool isFullThisTurn();
+
+		int CoordToInt(int x, int y)
+		{
+			return (x*boardSize+y);
+		}
+		int toX(int value)
+		{
+			return (value/boardSize);
+		}
+		int toY(int value)
+		{
+			return (value%boardSize);
+		}
 
 		void allSpots();
 		void printSpots();
@@ -96,6 +113,11 @@ class Board
 		{
 			return spots;
 		}
+
+		stack<int> checkNeighbours(int player, int x, int y);
+		void printNeighbours(stack<int> s);
+
+		void printCoord(int x, int y, bool el);
 };
 
 void Board::allSpots()
@@ -168,6 +190,13 @@ bool Board::addMove(int playerIndex, int x, int y)
 	grid[x][y] = playerIndex;
 	removeSpot(x,y);
 
+	stack<int> neighbours = checkNeighbours(playerIndex,x,y);
+	if(neighbours.size() > 0)
+		cout << "This move connects to:" << endl;
+	printNeighbours(neighbours); //need to disable the clear screen in HexGame to see results
+
+	printBoard();
+
 	turn = -1 * turn;
 	return true;
 }
@@ -175,11 +204,11 @@ bool Board::addMove(int playerIndex, int x, int y)
 void Board::printBoard()
 {
 	//Top X numbers
-	cout << "   ";
+	cout << "    ";
 	for (int j = 0; j < boardSize; j++)
 	{
 		if (j < 9) cout << "_" << j + 1 << "_.";
-		else cout << "_" << j + 1 << ".";
+		else cout << "" << j + 1 << "_.";
 	}
 	cout << endl;
 
@@ -187,7 +216,7 @@ void Board::printBoard()
 	for (int i = 0; i < boardSize; i++)
 	{
 		for (int k = 0; k < i; k++)
-			cout << " ";
+			cout << "  ";
 
 		if (i < 9) cout << " " << i + 1 << " ";
 		else cout << i + 1 << " ";
@@ -198,56 +227,68 @@ void Board::printBoard()
 			{
 				if (j == 0)
 				{
-					cout << "\\___\\";
+					cout << "  -  ";
 				}
 				else
 				{
-					cout << "___\\";
+					cout << " -  ";
 				}
 			}
 			else if (grid[i][j] == 1)
 			{
 				if (j == 0)
 				{
-					cout << "\\_X_\\";
+					cout << "  X  ";
 				}
 				else
 				{
-					cout << "_X_\\";
+					cout << " X  ";
 				}
 			}
 			else
 			{
 				if (j == 0)
 				{
-					cout << "\\_O_\\";
+					cout << "  O  ";
 				}
 				else
 				{
-					cout << "_O_\\";
+					cout << " O  ";
 				}
 			}
 		}
 
-		cout << " " << i + 1;
+		if(i < boardSize-1)
+			cout << "_" << i + 1;
+		else
+			cout << " " << i + 1;
+
 		if (i == boardSize / 2 || i == boardSize / 2 + 0.5) cout << "   Y Goal";
 		cout << endl;
 	}
 
 	for (int s = 0; s < boardSize; s++)
-		cout << " ";
+		cout << "  ";
 
-	cout << "   ";
+	cout << " ";
 	for (int e = 0; e < boardSize; e++)
 	{
-		if (e < 9) cout << " " << e + 1 << "  ";
-		else cout << " " << e + 1 << " ";
+		if (e < 9) cout << "  " << e + 1 << " ";
+		else cout << "  " << e + 1 << "";
 	}
 	cout << endl;
 
-	for (int g = 0; g < boardSize * 3; g++)
-		cout << " ";
-	cout << " X Goal" << endl;
+	//Bottom Border
+//	cout << "|";
+//	for(int b=0; b<boardSize; b++)
+//    {
+//        cout << "_______";
+//    }
+
+	//Bottom Goal
+	for (int g = 0; g < boardSize; g++)
+		cout << "  ";
+	cout << " X Goal" << endl << endl;
 }
 
 bool Board::isBoardFull()
@@ -280,68 +321,200 @@ bool Board::isFullThisTurn()
 		return false;
 }
 
-int Board::checkWinningStatus(int playerIndex)
+int Board::checkWinningStatus(int playerType, int x, int y)
 {
-	//Check if a whole row is complete
-	for (int r=0; r<boardSize; r++)
-	{
-		bool line = true;
-		for(int c=0; c<boardSize-1; c++)
-		{
-			if(grid[r][c] != grid[r][c+1] || grid[r][c] == 0)
-			{
-				line = false;
-				break;
-			}
-		}
-		if(line)
-			return playerIndex;
-	}
-
-	//Check if a whole column is complete
-	for (int c=0; c<boardSize; c++)
-	{
-		bool line = true;
-		for(int r=0; r<boardSize-1; r++)
-		{
-			if(grid[r][c] != grid[r+1][c] || grid[r][c] == 0)
-			{
-				line = false;
-				break;
-			}
-		}
-		if(line)
-			return playerIndex;
-	}
-
-	//1st diagonal is complete
-	bool d1 = true;
-	for(int i=0; i<boardSize; i++)
-	{
-		if(grid[i][i] != grid[i+1][i+1] || grid[i][i] == 0)
-		{
-			d1 = false;
-			break;
-		}
-	}
-	if(d1)
-		return playerIndex;
-
-	//2nd diagonal is complete
-	int d2 = true;
-	int bs = boardSize-1;
-	for(int i=0; i<bs; i++)
-	{
-		if(grid[i][bs-i] != grid[i+1][bs-i-1] || grid[i][bs-i] == 0)
-		{
-			d2 = false;
-			break;
-		}
-	}
-	if(d2)
-		return playerIndex;
+	if(lineWin(playerType)!=0 || backtrackWin(playerType, x, y)!=0)
+		return playerType;
 
 	return 0;
+}
+
+int Board::lineWin(int playerType)
+{
+	//Check if a whole row is complete (Y goal)
+	if(playerType == -1)
+		for (int r=0; r<boardSize; r++)
+		{
+			bool line = true;
+			for(int c=0; c<boardSize-1; c++)
+			{
+				if(grid[r][c] != grid[r][c+1] || grid[r][c] == 0)
+				{
+					line = false;
+					break;
+				}
+			}
+			if(line)
+				return playerType;
+		}
+
+	//Check if a whole column is complete (X goal)
+	if(playerType == 1)
+		for (int c=0; c<boardSize; c++)
+		{
+			bool line = true;
+			for(int r=0; r<boardSize-1; r++)
+			{
+				if(grid[r][c] != grid[r+1][c] || grid[r][c] == 0)
+				{
+					line = false;
+					break;
+				}
+			}
+			if(line)
+				return playerType;
+		}
+}
+
+bool Board::backtrackWin(int playerType, int x, int y)
+{
+//	vector<int> visited;
+//	stack<int> s;
+//	s.push(node1);
+//	unsigned int currnode;
+//
+//	while (!s.empty())
+//	{
+//		currnode = s.top();
+//		s.pop(); // Pop the top node off the stack
+//		visited[currnode] = true; // Set node 1 as visited
+//		unsigned int node_list_size = nodes[currnode].size();
+//		unsigned int candidate_node;
+//		for (unsigned int i = 0; i < node_list_size; i++)   // For each node adjacent to node 1
+//		{
+//			candidate_node = nodes[currnode][i];
+//			if (candidate_node == node2) return true; // Search is over
+//			if (visited[candidate_node]) continue;
+//			if (candidate_node >= size - 4 || board->getSpace(candidate_node) != color)
+//			{
+//				visited[candidate_node] = true;
+//				continue; // If it's the wrong color, or a pseudonode, don't pathfind through it.
+//			}
+//			s.push(nodes[currnode][i]); // Push the new node onto the search stack
+//		}
+//	}
+//	return false;
+////_________________________________________________________________________________________________________________________
+//
+//	if((playerType==1 && (x==0 || x==boardSize-1)) || (playerType==-1 && (y==0 || y==boardSize-1)))
+//	{
+//		stack<int> trackStack = checkNeighbours(playerType,x,y);
+//		vector<int> visitedStack(boardSize*boardSize, false);
+//
+//		while(!trackStack.empty())
+//		{
+//			int s = trackStack.top();
+//			trackStack.pop();
+//			visitedStack.push_back(s);
+//
+//			int sX = s/boardSize;
+//			int sY = s%boardSize;
+//
+//			if(s == 0)  //!implement check if s is goal
+//			{
+//				return true;
+//			}
+//			else
+//			{
+//				stack<int> children = checkNeighbours(playerType, sX, sY);
+//				while(!children.empty())
+//				{
+//					if(find(visitedStack.begin(), visitedStack.end(), children.top()) != visitedStack.end()) //!contains or for loop??
+//						continue;
+//					else
+//						trackStack.push(children.top()); //!add branch marker?
+//				}
+//			}
+//		}
+//		return 0;
+//	}
+//	else
+		return 0;
+}
+
+stack<int> Board::checkNeighbours(int player, int x, int y)
+{
+	stack<int> neighbours;
+	int value;
+
+	//Left
+	if((y-1) >= 0)
+		if(grid[x][y-1] == player)
+		{
+			value = CoordToInt(x,(y-1));
+			neighbours.push(value);
+		}
+
+	//Right
+	if((y+1) < boardSize)
+		if(grid[x][y+1] == player)
+		{
+			value = CoordToInt(x,(y+1));
+			neighbours.push(value);
+		}
+
+	//Up-Left
+	if((x-1) >= 0)
+		if(grid[x-1][y] == player)
+		{
+			value = CoordToInt((x-1),y);
+			neighbours.push(value);
+		}
+
+	//Up-Right
+	if((x-1) >= 0 && (y+1) < boardSize)
+		if(grid[x-1][y+1] == player)
+		{
+			value = CoordToInt((x-1),(y+1));
+			neighbours.push(value);
+		}
+
+	//Down-Left
+	if((x+1) < boardSize && (y-1) >= 0)
+		if(grid[x+1][y-1] == player)
+		{
+			value = CoordToInt((x+1),(y-1));
+			neighbours.push(value);
+		}
+
+	//Down-Right
+	if((x+1) < boardSize)
+		if(grid[x+1][y] == player)
+		{
+			value = CoordToInt((x+1),y);
+			neighbours.push(value);
+		}
+
+	return neighbours;
+}
+
+void Board::printNeighbours(stack<int> s)
+{
+	if (s.empty())
+		return;
+
+	int t = s.top();
+
+	s.pop();
+
+	printNeighbours(s);
+
+	int x, y;
+	x = (t/boardSize)+1;
+	y = (t%boardSize)+1;
+	cout << " - ";
+	printCoord(x,y,true);
+	cout << endl;
+
+	//s.push(t); //adds elements back to the stack in correct order
+}
+
+void Board::printCoord(int x, int y, bool el)
+{
+	if(el)
+		cout << "(" <<  x << "," << y << ")" << endl;
+	else
+		cout << "(" <<  x << "," << y << ")";
 }
 
 #endif /* BOARD_H_ */
