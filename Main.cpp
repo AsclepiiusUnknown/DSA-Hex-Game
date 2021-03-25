@@ -32,24 +32,24 @@ int main()
 	cin >> p2Type;
 	system("CLS");
 
-	Player *p1 = new HumanPlayer(1, "Crosses");
+	Player *p1 = new HumanPlayer(1, "Crosses (X)");
 	Player *p2;
 
 	switch(p2Type)
 	{
 		case 0:
 			{
-				p2 = new HumanPlayer(-1, "Naughts (Human)");
+				p2 = new HumanPlayer(-1, "Naughts (O)");
 				break;
 			}
 		case 1:
 			{
-				p2 = new RandomPlayer(-1, "Naughts (Random AI)");
+				p2 = new RandomPlayer(-1, "Naughts (O)");
 				break;
 			}
 		default:
 			{
-				p2 = new RandomPlayer(-1, "Naughts (Random AI)");
+				p2 = new RandomPlayer(-1, "Naughts (O)");
 				break;
 			}
 	}
