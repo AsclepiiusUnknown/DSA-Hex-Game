@@ -360,7 +360,7 @@ int Board::lineWin(int playerType)
 
 bool Board::checkWinDFS(int playerType, int x, int y) //DFS
 {
-    if ((spots.size() + (boardSize * 2 - 1)) < (boardSize * boardSize))
+    if ((spots.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
     {
         stack<int> trackStack = checkNeighbours(playerType, x, y);
         vector<int> visitedStack;
@@ -401,6 +401,8 @@ bool Board::checkWinDFS(int playerType, int x, int y) //DFS
                 stack<int> children = checkNeighbours(playerType, sX, sY);
                 while (!children.empty())
                 {
+                    cout << children.size() << endl;
+
                     if (find(visitedStack.begin(), visitedStack.end(), children.top()) !=
                         visitedStack.end())
                         children.pop();
