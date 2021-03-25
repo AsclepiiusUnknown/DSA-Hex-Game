@@ -59,7 +59,7 @@ public:
         for (int i = 0; i < boardSize; i++)
             for (int j = 0; j < boardSize; j++)
             {
-                grid[i][j] = cboard.getGrid(i, j);
+                grid[i][j] = cboard.getGridVal(i, j);
             }
 
         turn = cboard.getTurn();
@@ -70,9 +70,14 @@ public:
         return boardSize;
     }
 
-    int getGrid(int x, int y)
+    int getGridVal(int x, int y)
     {
         return grid[x][y];
+    }
+
+    int **getGrid()
+    {
+        return grid;
     }
 
     int getTurn()
@@ -86,7 +91,7 @@ public:
 
     int checkWinningStatus(int playerType, int x, int y);
 
-    int lineWin(int playerType);
+    bool lineWin(int playerType);
 
     bool checkWinDFS(int playerType, int x, int y);
 
@@ -313,13 +318,13 @@ bool Board::isFullThisTurn()
 
 int Board::checkWinningStatus(int playerType, int x, int y)
 {
-    if (lineWin(playerType) == playerType || checkWinDFS(playerType, x, y))
+    if (lineWin(playerType) || checkWinDFS(playerType, x, y))
         return playerType;
     else
         return 0;
 }
 
-int Board::lineWin(int playerType)
+bool Board::lineWin(int playerType)
 {
     //Check if a whole row is complete (for O)
     if (playerType == -1)
@@ -335,7 +340,7 @@ int Board::lineWin(int playerType)
                 }
             }
             if (line)
-                return playerType;
+                return true;
         }
 
     //Check if a whole column is complete (for X)
@@ -352,10 +357,10 @@ int Board::lineWin(int playerType)
                 }
             }
             if (line)
-                return playerType;
+                return true;
         }
 
-    return 0;
+    return false;
 }
 
 bool Board::checkWinDFS(int playerType, int x, int y) //DFS
@@ -498,5 +503,6 @@ void Board::printCoord(int x, int y, bool el)
     if (el)
         cout << endl;
 }
+
 
 #endif /* BOARD_H_ */

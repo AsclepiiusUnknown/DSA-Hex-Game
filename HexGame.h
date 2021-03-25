@@ -45,9 +45,9 @@ void HexGame::play()
             cout << "ERROR: No available move" << endl;
             return;
         } else
-            //system("CLS");
+            system("CLS");
 
-            cout << player[playerIndex]->getPlayerName() << " played ";
+        cout << player[playerIndex]->getPlayerName() << " played ";
         board->printCoord(x + 1, y + 1, false);
 
         if (!board->addMove(playerType, x, y))

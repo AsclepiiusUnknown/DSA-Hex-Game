@@ -33,6 +33,26 @@ HexGame.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/HexGame.h
 RandomPlayer.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/RandomPlayer.h
+MonteCarloPlayer.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/MonteCarloPlayer.h
+MiniMaxPlayer.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/MiniMaxPlayer.h
+
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/MiniMaxPlayer.h
+time.h
+-
+random
+-
+vector
+-
+
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/MonteCarloPlayer.h
+time.h
+-
+random
+-
+vector
+-
 
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Player.h
 

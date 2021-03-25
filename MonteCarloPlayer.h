@@ -5,8 +5,8 @@
  *      Author: Broderick Westrope
  */
 
-#ifndef RANDOMPLAYER_H_
-#define RANDOMPLAYER_H_
+#ifndef MONTECARLOPLAYER_H_
+#define MONTECARLOPLAYER_H_
 
 #include<time.h>
 #include<random>
@@ -14,10 +14,10 @@
 
 using namespace std;
 
-class RandomPlayer : public Player
+class MonteCarloPlayer : public Player
 {
 public:
-    RandomPlayer(int t, string name = "Random") :
+    MonteCarloPlayer(int t, string name = "Monte Carlo") :
             Player(t, name)
     {
     }
@@ -25,7 +25,7 @@ public:
     bool getMove(Board *, int &, int &);
 };
 
-bool RandomPlayer::getMove(Board *board, int &x, int &y)
+bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
 {
     if (board->isBoardFull())
     {
@@ -43,4 +43,4 @@ bool RandomPlayer::getMove(Board *board, int &x, int &y)
     return true;
 }
 
-#endif /* RANDOMPLAYER_H_ */
+#endif /* MONTECARLOPLAYER_H_ */
