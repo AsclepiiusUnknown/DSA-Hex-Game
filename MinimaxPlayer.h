@@ -23,6 +23,9 @@ public:
         int x, y; //row and column for each move
     };
 
+    const int MAX = 1000;
+    const int MIN = -1000;
+
     //region Functions
     bool getMove(Board *, int &, int &);
 
@@ -32,7 +35,7 @@ public:
 
     bool evaluateDFS(int playerType, Board *board);
 
-    int minimax(Board *board, int depth, bool isMax);
+    int minimax(Board *board, int depth, bool isMax, int alpha, int beta);
 
     Move findBestMove(Board *board);
 
@@ -66,8 +69,8 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
 {
     int **grid = board->getGrid();
     int bs = board->getBoardSize();
-    int bestVal = -1000;
     int player = getType();
+    int bestVal = (player == -1) ? MIN : MAX;
     bool isMax = (player == 1);
     Move bestMove;
     bestMove.x = -1;
@@ -88,7 +91,7 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
 
                 // compute evaluation function for this
                 // move.
-                int moveVal = minimax(board, 0, isMax); // <-- error on first iteration
+                int moveVal = minimax(board, 0, isMax, MIN, MAX); // <-- error on first iteration
 
                 // Undo the move
                 grid[i][j] = 0;
@@ -111,7 +114,7 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
     return bestMove;
 }
 
-int MinimaxPlayer::minimax(Board *board, int depth, bool isMax)
+int MinimaxPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int beta)
 {
     int score = evaluate(board);
     int **grid = board->getGrid();
@@ -148,13 +151,18 @@ int MinimaxPlayer::minimax(Board *board, int depth, bool isMax)
 
                     // Call minimax recursively and choose
                     // the maximum value
-                    best = max(best, minimax(board, depth + 1, !isMax));
+                    best = max(best, minimax(board, depth + 1, !isMax, alpha, beta));
+                    alpha = max(alpha, best);
 
                     // Undo the move
                     grid[x][y] = 0;
+
+                    if (beta <= alpha)
+                        goto maxPrune;
                 }
             }
         }
+        maxPrune:
         return best;
     }
         // If it's the minimizer's move
@@ -175,13 +183,18 @@ int MinimaxPlayer::minimax(Board *board, int depth, bool isMax)
 
                     // Call minimax recursively and choose
                     // the minimum value
-                    best = min(best, minimax(board, depth + 1, !isMax));
+                    best = min(best, minimax(board, depth + 1, !isMax, alpha, beta));
+                    beta = min(beta, best);
 
                     // Undo the move
                     grid[x][y] = 0;
+
+                    if (beta <= alpha)
+                        goto minPrune;
                 }
             }
         }
+        minPrune:
         return best;
     }
 }

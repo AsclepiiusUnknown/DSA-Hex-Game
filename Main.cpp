@@ -20,22 +20,36 @@ using namespace std;
 
 int main()
 {
-    int boardSize = 5;
-    cout << "Input the size of board: (Minimum is 3, but boards from 5-12 are best)" << endl;
-    cin >> boardSize;
-    system("CLS");
-    if (boardSize < 3)
-        boardSize = 3;
-    else if (boardSize > 15)
-        boardSize = 15;
-
-    Board *board = new Board(boardSize);
-
+    //region Player Pre-Game Input
     int p2Type = 1;
     cout << "Who do you want to verse? (0 = another player, 1 = Bad AI, 2 = Better AI, 3 = Best AI)" << endl;
     cin >> p2Type;
     system("CLS");
 
+    int boardSize = 5;
+    if (p2Type != 3)
+    {
+        cout << "Input the size of board: (NOTE: Minimum is 3, Maximum 15, but boards from 5-12 are best)" << endl;
+        cin >> boardSize;
+        system("CLS");
+        if (boardSize < 3)
+            boardSize = 3;
+        else if (boardSize > 15)
+            boardSize = 15;
+    } else
+    {
+        cout << "Input the size of board: (NOTE: When using Minimax the only boards are 3 or 4)" << endl;
+        cin >> boardSize;
+        system("CLS");
+        if (boardSize < 3)
+            boardSize = 3;
+        else if (boardSize > 4)
+            boardSize = 4;
+    }
+    //endregion
+
+    //region Game Setup
+    Board *board = new Board(boardSize);
     Player *p1 = new HumanPlayer(1, "Crosses (X)");
     Player *p2;
 
@@ -69,6 +83,7 @@ int main()
             break;
         }
     }
+    //endregion
 
     HexGame game(board, p1, p2);
     game.play();
@@ -77,6 +92,5 @@ int main()
     delete p1;
     delete p2;
 
-//	system("pause");
     return 0;
 }
