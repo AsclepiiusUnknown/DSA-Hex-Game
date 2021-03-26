@@ -135,20 +135,29 @@ void Board::allSpots()
         for (int y = 0; y < boardSize; y++)
         {
             int value = x * boardSize + y;
-            //cout << x << " " << boardSize << " " << y << endl;
-
             spots.push_back(value);
-
-//			int i = value/boardSize+1;
-//			int j = value%boardSize+1;
-//			cout << i << j << endl;
         }
 }
 
 void Board::printSpots()
 {
+    int x, y;
+    int tally = 0;
     for (int i = 0; i < spots.size(); i++)
-        cout << "(" << (spots[i] / boardSize) + 1 << "," << (spots[i] % boardSize) + 1 << ")" << endl;
+    {
+        x = (spots[i] / boardSize) + 1, y = (spots[i] % boardSize) + 1;
+        if (x > tally)
+        {
+            tally = x;
+            cout << endl;
+        } else
+        {
+            cout << ", ";
+        }
+        printCoord(x, y, false);
+    }
+
+    cout << endl;
 }
 
 void Board::removeSpot(int x, int y)
@@ -333,11 +342,14 @@ int Board::checkWinningStatus(int playerType, int x, int y)
 
 bool Board::lineWin(int playerType)
 {
+    bool line;
+
     //Check if a whole row is complete (for O)
     if (playerType == -1)
         for (int r = 0; r < boardSize; r++)
         {
-            bool line = true;
+            line = true;
+
             for (int c = 0; c < boardSize - 1; c++)
             {
                 if (grid[r][c] != grid[r][c + 1] || grid[r][c] != playerType)
@@ -354,7 +366,8 @@ bool Board::lineWin(int playerType)
     if (playerType == 1)
         for (int c = 0; c < boardSize; c++)
         {
-            bool line = true;
+            line = true;
+
             for (int r = 0; r < boardSize - 1; r++)
             {
                 if (grid[r][c] != grid[r + 1][c] || grid[r][c] != playerType)
@@ -367,7 +380,17 @@ bool Board::lineWin(int playerType)
                 return true;
         }
 
-    return false;
+    line = true;
+    for (int i = 0; i < boardSize - 1; i++)
+    {
+        if (grid[i][boardSize - i] != grid[i + 1][boardSize - i - 1] || grid[i][boardSize - i] != playerType)
+        {
+            line = false;
+            break;
+        }
+    }
+
+    return line;
 }
 
 bool Board::checkWinDFS(int playerType, int x, int y) //DFS
@@ -463,10 +486,10 @@ stack<int> Board::checkNeighbours(int player, int x, int y)
         }
 
     //Down-Left
-    if ((x - 1) >= 0 && (y - 1) >= 0)
-        if (grid[x - 1][y - 1] == player)
+    if ((x + 1) < boardSize && (y - 1) >= 0)
+        if (grid[x + 1][y - 1] == player)
         {
-            value = CoordToInt((x - 1), (y - 1));
+            value = CoordToInt((x + 1), (y - 1));
             neighbours.push(value);
         }
 

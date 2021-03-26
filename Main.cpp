@@ -26,6 +26,8 @@ int main()
     system("CLS");
     if (boardSize < 3)
         boardSize = 3;
+    else if (boardSize > 15)
+        boardSize = 15;
 
     Board *board = new Board(boardSize);
 
@@ -49,11 +51,11 @@ int main()
             p2 = new RandomPlayer(-1, "Naughts (O)");
             break;
         }
-//        case 2:
-//        {
-//            p2 = new MonteCarloPlayer(-1, "Naughts (O)");
-//            break;
-//        }
+        case 2:
+        {
+            p2 = new MonteCarloPlayer(-1, "Naughts (O)");
+            break;
+        }
         case 3:
         {
             p2 = new MinimaxPlayer(-1, "Naughts (O)");

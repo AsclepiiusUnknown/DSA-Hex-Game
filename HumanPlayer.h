@@ -10,43 +10,42 @@
 
 using namespace std;
 
-class HumanPlayer: public Player
+class HumanPlayer : public Player
 {
-	public:
-		HumanPlayer(int t, string name = "Human") :
-			Player(t, name)
-		{
-		}
-		bool getMove(Board*, int&, int&);
+public:
+    HumanPlayer(int t, string name = "Human") :
+            Player(t, name)
+    {
+    }
+
+    bool getMove(Board *, int &, int &);
 };
 
 bool HumanPlayer::getMove(Board *board, int &x, int &y)
 {
-	bool flag = false;
-	bool lastTurn = false;
-	int bs = board->getBoardSize();
+    bool flag = false;
+    bool lastTurn = false;
+    int bs = board->getBoardSize();
 
-	lastTurn = board->isFullThisTurn();
+    lastTurn = board->isFullThisTurn();
 
-	do
-	{
-		cout << "Input row and column (x, y) between 1 to " << bs << " for "
-			 << name << ":" << endl;
-			 board->printSpots();
-		int row, col;
-		cin >> row >> col;
-		x = row - 1;
-		y = col - 1;
-		flag = board->validInput(x, y)?false:true; //Flag invalid inout if the board is full or if it isnt a valid input (ie. used spot)
-		if (flag == true)
-			cout << "Invalid input! Please input again." << endl;
-	}
-	while (flag);
+    do
+    {
+        cout << "Input row and column (x, y) between 1 to " << bs << " for " << name << ":";
+        board->printSpots();
+        int row, col;
+        cin >> row >> col;
+        x = row - 1;
+        y = col - 1;
+        flag = !board->validInput(x, y); //Flag invalid input if given coordinates are invalid
+        if (flag == true)
+            cout << "Invalid input! Please input again." << endl;
+    } while (flag);
 
-	//board->emptySpots -= 1;
-	//cout << board->emptySpots;
+    //board->emptySpots -= 1;
+    //cout << board->emptySpots;
 
-	return true;
+    return true;
 }
 
 #endif /* HUMANPLAYER_H_ */
