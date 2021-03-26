@@ -16,7 +16,7 @@ using namespace std;
 #include "HexGame.h"
 #include "RandomPlayer.h"
 #include "MonteCarloPlayer.h"
-#include "MiniMaxPlayer.h"
+#include "MinimaxPlayer.h"
 
 int main()
 {
@@ -49,14 +49,14 @@ int main()
             p2 = new RandomPlayer(-1, "Naughts (O)");
             break;
         }
-        case 2:
-        {
-            p2 = new MonteCarloPlayer(-1, "Naughts (O)");
-            break;
-        }
+//        case 2:
+//        {
+//            p2 = new MonteCarloPlayer(-1, "Naughts (O)");
+//            break;
+//        }
         case 3:
         {
-            p2 = new MiniMaxPlayer(-1, "Naughts (O)");
+            p2 = new MinimaxPlayer(-1, "Naughts (O)");
             break;
         }
 

@@ -75,6 +75,11 @@ public:
         return grid[x][y];
     }
 
+    int getSpotsSize()
+    {
+        return spots.size();
+    }
+
     int **getGrid()
     {
         return grid;
@@ -164,7 +169,7 @@ bool Board::validInput(int x, int y)
 {
     if (x < 0 || y < 0 || x >= boardSize || y >= boardSize)
     {
-        cout << "Move (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
+        cout << "Node (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
         return false;
     }
 
@@ -318,10 +323,12 @@ bool Board::isFullThisTurn()
 
 int Board::checkWinningStatus(int playerType, int x, int y)
 {
-    if (lineWin(playerType) || checkWinDFS(playerType, x, y))
-        return playerType;
-    else
-        return 0;
+    if ((spots.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
+    {
+        if (lineWin(playerType) || checkWinDFS(playerType, x, y))
+            return playerType;
+    }
+    return 0;
 }
 
 bool Board::lineWin(int playerType)
@@ -365,63 +372,56 @@ bool Board::lineWin(int playerType)
 
 bool Board::checkWinDFS(int playerType, int x, int y) //DFS
 {
-    if ((spots.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
+    stack<int> trackStack = checkNeighbours(playerType, x, y);
+    vector<int> visitedStack;
+    if (trackStack.empty())
+        return false;
+
+    bool start = false, finish = false;
+    int startGoal = 0, endGoal = boardSize - 1;
+
+    while (!trackStack.empty())
     {
-        stack<int> trackStack = checkNeighbours(playerType, x, y);
-        vector<int> visitedStack;
-        if (trackStack.empty())
-            return false;
+        int s = trackStack.top();
+        trackStack.pop();
+        visitedStack.push_back(s);
 
-        bool start = false, finish = false;
-        int startGoal = 0, endGoal = boardSize - 1;
+        int sX = s / boardSize;
+        int sY = s % boardSize;
 
-        while (!trackStack.empty())
+        if (playerType == -1)
         {
-            int s = trackStack.top();
-            trackStack.pop();
-            visitedStack.push_back(s);
+            if (sY == startGoal)
+                start = true;
+            else if (sY == endGoal)
+                finish = true;
+        } else if (playerType == 1)
+        {
+            if (sX == startGoal)
+                start = true;
+            else if (sX == endGoal)
+                finish = true;
+        }
 
-            int sX = s / boardSize;
-            int sY = s % boardSize;
-
-            if (playerType == -1)
+        if (start && finish)
+        {
+            return true;
+        } else
+        {
+            stack<int> children = checkNeighbours(playerType, sX, sY);
+            while (!children.empty())
             {
-                if (sY == startGoal)
-                    start = true;
-                else if (sY == endGoal)
-                    finish = true;
-            } else if (playerType == 1)
-            {
-                if (sX == startGoal)
-                    start = true;
-                else if (sX == endGoal)
-                    finish = true;
-            }
-
-            if (start && finish)
-            {
-                return true;
-            } else
-            {
-                stack<int> children = checkNeighbours(playerType, sX, sY);
-                while (!children.empty())
+                if (find(visitedStack.begin(), visitedStack.end(), children.top()) !=
+                    visitedStack.end())
+                    children.pop();
+                else
                 {
-                    cout << children.size() << endl;
-
-                    if (find(visitedStack.begin(), visitedStack.end(), children.top()) !=
-                        visitedStack.end())
-                        children.pop();
-                    else
-                    {
-                        trackStack.push(children.top());
-                        children.pop();
-                    }
+                    trackStack.push(children.top());
+                    children.pop();
                 }
             }
         }
-        return false;
     }
-
     return false;
 }
 
