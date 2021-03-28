@@ -34,7 +34,7 @@ bool RandomPlayer::getMove(Board *board, int &x, int &y)
     }
 
     srand(time(NULL));
-    vector<int> spots = board->getSpots();
+    vector<int> spots = board->getFSpots();
     int index = rand() % (spots.size());
 
     x = spots[index] / board->getBoardSize();

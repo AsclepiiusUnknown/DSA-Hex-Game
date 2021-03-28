@@ -32,19 +32,17 @@ bool HumanPlayer::getMove(Board *board, int &x, int &y)
     do
     {
         cout << "Input row and column (x, y) between 1 to " << bs << " for " << name << ":";
-        board->printSpots();
+        board->printSpots(board->getFSpots());
         int row, col;
         cin >> row >> col;
         x = row - 1;
         y = col - 1;
         flag = !board->validInput(x, y); //Flag invalid input if given coordinates are invalid
-        if (flag == true)
+        if (flag)
             cout << "Invalid input! Please input again." << endl;
     } while (flag);
 
-    //board->emptySpots -= 1;
-    //cout << board->emptySpots;
-
+    system("CLS");
     return true;
 }
 

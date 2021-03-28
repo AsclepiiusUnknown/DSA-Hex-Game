@@ -6,14 +6,14 @@
  *      Author: Broderick Westrope
  */
 
-#ifndef MINIMAX_H_
-#define MINIMAX_H_
+#ifndef NEGASCOUT_H_
+#define NEGASCOUT_H_
 //endregion
 
-class MinimaxPlayer : public Player
+class NegascoutPlayer : public Player
 {
 public:
-    MinimaxPlayer(int t, string name = "Minimax") : // <--- add board here? is that possible/good (pointers?)??
+    NegascoutPlayer(int t, string name = "NegascoutPlayer") :
             Player(t, name)
     {
     }
@@ -34,17 +34,18 @@ public:
 
     int evaluate(Board *board);
 
-    bool evaluateDFS(int playerType, Board *board);
+    bool evaluateDFS(Board *board, int playerType);
 
     int minimax(Board *board, int depth, bool isMax, int alpha, int beta);
 
     Move findBestMove(Board *board);
 
     bool isInVector(vector<int> v, int e);
+
     //endregion
 };
 
-bool MinimaxPlayer::getMove(Board *board, int &x, int &y)
+bool NegascoutPlayer::getMove(Board *board, int &x, int &y)
 {
     if (board->isBoardFull())
     {
@@ -69,7 +70,7 @@ bool MinimaxPlayer::getMove(Board *board, int &x, int &y)
 }
 
 //region Minimax Algorithm
-MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
+NegascoutPlayer::Move NegascoutPlayer::findBestMove(Board *board)
 {
     int **grid = board->getGrid();
     int bs = board->getBoardSize();
@@ -92,7 +93,7 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
                 grid[i][j] = player;
 
                 //Evaluate the move's value using minimax algorithm & alpha-beta pruning
-                int moveVal = minimax(board, bs, isMax, MIN, MAX);
+                int moveVal = minimax(board, isMax, false, 0, 0);
 
                 //Reset the cell to unoccupied
                 grid[i][j] = 0;
@@ -115,90 +116,65 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
     return bestMove;
 }
 
-int MinimaxPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int beta)
+int NegascoutPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int beta)
 {
-    int score = evaluate(board);
+    int bestScore = evaluate(board);
     int **grid = board->getGrid();
     int bs = board->getBoardSize();
     int player = getType(), opponent = (getType() * -1);
 
-    //If the board is full without a winner then there is a tie
-    if (!isMovesLeft(grid, bs))
-        return 0;
 
-    //If Maximizer/Minimizer has won, return its score
-    if (score == WIN_VAL || score == -WIN_VAL || depth <= 0)
-        return score;
+    if (depth == 0)
+        return bestScore;
 
-    //If it's the Maximizer's move
-    if (isMax)
+    bestScore = MIN; //-1000
+
+    //Recursively call algorithm and choose max value
+    bestScore = -minimax(board, depth + 1, !isMax, -beta, -alpha);
+    if (bestScore > alpha)
     {
-        int best = MIN; //-1000
+        if (bestScore >= beta)
+            return bestScore; //this is a refutation move, not a pv move. however it will usually cutoff so it can be considered a best move if no other is found
 
-        // Traverse all cells
-        for (int x = 0; x < bs; x++)
-        {
-            for (int y = 0; y < bs; y++)
-            {
-                // Check if cell is empty
-                if (grid[x][y] == 0)
-                {
-                    //Start by making the cell ours
-                    grid[x][y] = player;
-
-                    //Recursively call algorithm and choose max value
-                    best = max(best, minimax(board, depth - 1, !isMax, alpha, beta));
-                    //Set alpha to best if best is bigger
-                    alpha = max(alpha, best);
-
-                    //Reset the cell to unoccupied
-                    grid[x][y] = 0;
-
-                    //Prune
-                    if (beta <= alpha)
-                        goto maxPrune; //Exit loops
-                }
-            }
-        }
-        maxPrune:
-        return best;
-    } else //If it's the minimizer's move
-    {
-        int best = MAX; //1000
-
-        // Traverse all cells
-        for (int x = 0; x < bs; x++)
-        {
-            for (int y = 0; y < bs; y++)
-            {
-                // Check if cell is empty
-                if (grid[x][y] == 0)
-                {
-                    // Make the move
-                    grid[x][y] = opponent;
-
-                    //Recursively call algorithm and choose min value
-                    best = min(best, minimax(board, depth - 1, !isMax, alpha, beta));
-                    //Set beta to best if best is smaller
-                    beta = min(beta, best);
-
-                    //Reset the cell to unoccupied
-                    grid[x][y] = 0;
-
-                    //Prune
-                    if (beta <= alpha)
-                        goto minPrune; //Exit loops
-                }
-            }
-        }
-        minPrune:
-        return best;
+        alpha = bestScore;
     }
+
+    ///
+
+    // Traverse all cells
+    for (int x = 0; x < bs; x++)
+    {
+        for (int y = 0; y < bs; y++)
+        {
+            // Check if cell is empty
+            if (grid[x][y] == 0)
+            {
+                int score;
+                //score = zWSearch(-alpha, board);
+                if (score > alpha && score < beta)
+                {
+                    bestScore = -minimax(board, depth - 1, isMax, -beta, -alpha);
+                    if (score > alpha)
+                    {
+                        alpha = score;
+                    }
+                }
+
+                if (score > bestScore)
+                    if (score >= beta)
+                        return score;
+                bestScore = score;
+
+
+            }
+        }
+    }
+    return bestScore;
 }
 //endregion
 
 //region Heuristic Evaluation
-int MinimaxPlayer::evaluate(Board *board)
+int NegascoutPlayer::evaluate(Board *board)
 {
     int spots = board->FSpotsSize();
     int bs = board->getBoardSize();
@@ -209,15 +185,15 @@ int MinimaxPlayer::evaluate(Board *board)
         int player = getType(), opponent = (getType() * -1);
 
         //Check both players for a winner, first checking for a line, then using DFS
-        if (board->lineWin(player) || evaluateDFS(player, board))
+        if (board->lineWin(player) || evaluateDFS(board, player))
             return player * WIN_VAL;
-        else if (board->lineWin(opponent) || evaluateDFS(opponent, board))
+        else if (board->lineWin(opponent) || evaluateDFS(board, opponent))
             return opponent * WIN_VAL;
     }
     return 0; //No winner
 }
 
-bool MinimaxPlayer::evaluateDFS(int playerType, Board *board)
+bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deepening Depth-First Search
 {
     int bs = board->getBoardSize();
     stack<int> searchStack;
@@ -277,7 +253,7 @@ bool MinimaxPlayer::evaluateDFS(int playerType, Board *board)
     return false;
 }
 
-bool MinimaxPlayer::isInVector(vector<int> v, int e)
+bool NegascoutPlayer::isInVector(vector<int> v, int e)
 {
     if (v.empty())
         return false;
@@ -290,7 +266,7 @@ bool MinimaxPlayer::isInVector(vector<int> v, int e)
 }
 //endregion
 
-bool MinimaxPlayer::isMovesLeft(int **grid, int boardSize)
+bool NegascoutPlayer::isMovesLeft(int **grid, int boardSize)
 {
     for (int i = 0; i < boardSize; i++)
         for (int j = 0; j < boardSize; j++)

@@ -17,6 +17,7 @@ using namespace std;
 #include "RandomPlayer.h"
 #include "MonteCarloPlayer.h"
 #include "MinimaxPlayer.h"
+#include "NegascoutPlayer.h"
 
 int main()
 {
@@ -41,10 +42,10 @@ int main()
         cout << "Input the size of board: (NOTE: When using Minimax the only boards are 3 or 4)" << endl;
         cin >> boardSize;
         system("CLS");
-        if (boardSize < 3)
-            boardSize = 3;
-        else if (boardSize > 4)
-            boardSize = 4;
+//        if (boardSize < 3)
+//            boardSize = 3;
+//        else if (boardSize > 4)
+//            boardSize = 4;
     }
     //endregion
 
@@ -73,6 +74,11 @@ int main()
         case 3:
         {
             p2 = new MinimaxPlayer(-1, "Naughts (O)");
+            break;
+        }
+        case 4:
+        {
+            p2 = new NegascoutPlayer(-1, "Naughts (O)");
             break;
         }
 

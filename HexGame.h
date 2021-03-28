@@ -30,7 +30,7 @@ void HexGame::play()
 {
     int won = 0;
     board->printBoard(); //Print the game board to the screen
-    board->allSpots(); //Add all of the free coordinates to the spots vector
+    board->addSpots(); //Add all of the free coordinates to the freeSpots vector
 
     //Loop until someone has won or the board has been filled
     while (!won && !board->isBoardFull())
@@ -44,8 +44,7 @@ void HexGame::play()
         {
             cout << "ERROR: No available move" << endl;
             return;
-        } else
-            system("CLS");
+        }
 
         cout << player[playerIndex]->getPlayerName() << " played ";
         board->printCoord(x + 1, y + 1, false);

@@ -18,7 +18,8 @@ private:
     int boardSize;
     int turn;
     int **grid;
-    vector<int> spots;
+    vector<int> freeSpots;
+    vector<int> allSpots;
 public:
     Board(int bs)
     {
@@ -65,6 +66,39 @@ public:
         turn = cboard.getTurn();
     }
 
+    //region Spots
+    void addSpots();
+
+    void printSpots(vector<int> spots);
+
+    //region Free Spots
+    vector<int> getFSpots()
+    {
+        return freeSpots;
+    }
+
+    int FSpotsSize()
+    {
+        return freeSpots.size();
+    }
+
+    void removeASpot(int x, int y);
+    //endregion
+
+    //region All Spots
+    vector<int> getASpots()
+    {
+        return allSpots;
+    }
+
+    int ASpotsSize()
+    {
+        return allSpots.size();
+    }
+    //endregion
+
+    //endregion
+
     int getBoardSize()
     {
         return boardSize;
@@ -73,11 +107,6 @@ public:
     int getGridVal(int x, int y)
     {
         return grid[x][y];
-    }
-
-    int getSpotsSize()
-    {
-        return spots.size();
     }
 
     int **getGrid()
@@ -106,17 +135,6 @@ public:
 
     bool isFullThisTurn();
 
-    void allSpots();
-
-    void printSpots();
-
-    void removeSpot(int x, int y);
-
-    vector<int> getSpots()
-    {
-        return spots;
-    }
-
     stack<int> checkNeighbours(int player, int x, int y);
 
     void printNeighbours(stack<int> s);
@@ -129,17 +147,18 @@ public:
     }
 };
 
-void Board::allSpots()
+void Board::addSpots()
 {
     for (int x = 0; x < boardSize; x++)
         for (int y = 0; y < boardSize; y++)
         {
             int value = x * boardSize + y;
-            spots.push_back(value);
+            freeSpots.push_back(value);
+            allSpots.push_back(value);
         }
 }
 
-void Board::printSpots()
+void Board::printSpots(vector<int> spots)
 {
     int x, y;
     int tally = 0;
@@ -160,15 +179,15 @@ void Board::printSpots()
     cout << endl;
 }
 
-void Board::removeSpot(int x, int y)
+void Board::removeASpot(int x, int y)
 {
     int value = x * boardSize + y;
 
-    for (int i = 0; i < spots.size(); i++)
+    for (int i = 0; i < freeSpots.size(); i++)
     {
-        if (spots[i] == value)
+        if (freeSpots[i] == value)
         {
-            spots.erase(spots.begin() + i);
+            freeSpots.erase(freeSpots.begin() + i);
             break;
         }
     }
@@ -206,7 +225,7 @@ bool Board::addMove(int playerIndex, int x, int y)
     }
 
     grid[x][y] = playerIndex;
-    removeSpot(x, y);
+    removeASpot(x, y);
 
     stack<int> neighbours = checkNeighbours(playerIndex, x, y);
     if (!neighbours.empty())
@@ -303,7 +322,7 @@ void Board::printBoard()
 
 bool Board::isBoardFull()
 {
-    if (spots.size() > 0)
+    if (freeSpots.size() > 0)
         return false;
 
     cout << "Woops! The board is full and no one has won, looks like it's game over." << endl;
@@ -332,7 +351,7 @@ bool Board::isFullThisTurn()
 
 int Board::checkWinningStatus(int playerType, int x, int y)
 {
-    if ((spots.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
+    if ((freeSpots.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
     {
         if (lineWin(playerType) || checkWinDFS(playerType, x, y))
             return playerType;
