@@ -67,17 +67,21 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
         return false;
     }
 
-    int player = getType();
+    system("CLS");
+
+    int bs = board->getBoardSize();
 
     priority_queue<Move> moves;
     cout << "Values of Moves: " << endl;
-    for (int r = 0; r < 3; r++)
+    for (int r = 0; r < bs; r++)
     {
-        for (int c = 0; c < 3; c++)
+        for (int c = 0; c < bs; c++)
         {
+            board->printCoord(r, c, false);
+
             if (board->grid[r][c] != 0)
             {
-                cout << "  x   ";
+                cout << endl << setw(5) << "X" << endl;
                 continue;
             }
             Board tempBoard = *board;
@@ -94,7 +98,7 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
 
             Move m(r, c, utility);
             moves.push(m);
-            cout << setw(5) << m.v << " ";
+            cout << setw(5) << m.v << " " << endl;
         }
         cout << endl;
     }
@@ -124,21 +128,25 @@ double MonteCarloPlayer::simulation(Board board)
 
 double MonteCarloPlayer::expansion(int playerType, Board board)
 {
-    if (evaluate(board) == (playerType * WIN_VAL))
+    int status = evaluate(board);
+
+    //If this player is winning
+    if (status == (playerType * WIN_VAL))
     {
         return 1.0;
-    } else
+    } else if (status == 5) //if its a draw
+    {
+        return 0.5;
+    } else if (status == 0) //Not finished and no winner
     {
         return 0.0;
     }
 
-
     int x, y;
     getRandomMove(board.getFSpots(), x, y, board.getBoardSize());
-    board.addMove(player, x, y);
-    playerType = (playerType == -1) ? 'O' : 'X';
-
-    return expansion(player, board);
+    board.addMove(playerType, x, y);
+    playerType = (playerType == -1) ? 1 : -1;
+    return expansion(playerType, board);
 }
 
 void MonteCarloPlayer::getRandomMove(vector<int> spots, int &x, int &y, int bs)
@@ -156,14 +164,21 @@ int MonteCarloPlayer::evaluate(Board &lB)
     int spots = lB.FSpotsSize();
     int bs = lB.getBoardSize();
 
-    //Only check for a win if enough cells have been occupied
+    //Check for a draw
+    if (spots <= 0)
+        return 5;
+
+    // Only check for a win if enough cells have been occupie
     if ((spots + (bs * 2 - 1)) <= (bs * bs))
     {
         //Check both players for a winner, first checking for a line, then using DFS
         if (lB.lineWin(player) || evaluateDFS(player, lB))
             return (player * WIN_VAL);
+        else if (lB.lineWin(opponent) || evaluateDFS(opponent, lB))
+            return (opponent * WIN_VAL);
     }
-    return 0;
+
+    return 0; //continue value
 }
 
 bool MonteCarloPlayer::evaluateDFS(int playerType, Board &lB)

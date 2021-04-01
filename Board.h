@@ -228,13 +228,13 @@ bool Board::addMove(int playerIndex, int x, int y)
     grid[x][y] = playerIndex;
     removeASpot(x, y);
 
-    stack<int> neighbours = checkNeighbours(playerIndex, x, y);
-    if (!neighbours.empty())
-    {
-        cout << ", which connects to: ";
-        printNeighbours(neighbours);
-    } else
-        cout << endl;
+//    stack<int> neighbours = checkNeighbours(playerIndex, x, y); //Printing Neighbours
+//    if (!neighbours.empty())
+//    {
+//        cout << ", which connects to: ";
+//        printNeighbours(neighbours);
+//    } else
+//        cout << endl;
 
     turn = -1 * turn;
     return true;
