@@ -17,7 +17,6 @@ class Board
 private:
     int boardSize;
     int turn;
-    int **grid;
     vector<int> freeSpots;
     vector<int> allSpots;
 public:
@@ -98,6 +97,8 @@ public:
     //endregion
 
     //endregion
+
+    int **grid;
 
     int getBoardSize()
     {
@@ -545,6 +546,5 @@ void Board::printCoord(int x, int y, bool el)
     if (el)
         cout << endl;
 }
-
 
 #endif /* BOARD_H_ */

@@ -25,20 +25,26 @@ public:
 
     const int MAX = 1000;
     const int MIN = -1000;
-    const int WIN_VAL = 10;
+    const int WIN_VAL = 50;
+    const int MAX_DEPTH = 100;
+
+    int bs;
+
+    int player = getType();
+    int opponent = player * -1;
 
     //region Functions
     bool getMove(Board *, int &, int &);
 
-    bool isMovesLeft(int **grid, int boardSize);
+    bool isMovesLeft(int **grid);
 
-    int evaluate(Board *board);
+    int evaluate(Board &lB, int depth);
 
-    bool evaluateDFS(int playerType, Board *board);
+    bool evaluateDFS(int playerType, Board &lB);
 
-    int minimax(Board *board, int depth, bool isMax, int alpha, int beta);
+    int minimax(Board &lB, int depth, bool isMax, int alpha, int beta);
 
-    Move findBestMove(Board *board);
+    MinimaxPlayer::Move findBestMove(Board lB);
 
     bool isInVector(vector<int> v, int e);
     //endregion
@@ -52,13 +58,19 @@ bool MinimaxPlayer::getMove(Board *board, int &x, int &y)
         return false;
     }
 
-    //Start the algorithm to get the best move
-    Move bestMove = findBestMove(board);
+    //Create a board
+    Board lB = *board;
+    //Setup the global bs (board size) variable
+    bs = lB.getBoardSize();
 
-    //Assign the coordinates of the best move
+    //Start the algorithm recursion to get the best move
+    Move bestMove = findBestMove(lB);
+
+    //Use the coordinates of our 'best move'
     x = bestMove.x;
     y = bestMove.y;
 
+    //Check if our coordinate values are valid and log an error if not
     if (!board->validInput(x, y))
     {
         cout << "ERROR: Minimax input was invalid" << endl;
@@ -69,45 +81,43 @@ bool MinimaxPlayer::getMove(Board *board, int &x, int &y)
 }
 
 //region Minimax Algorithm
-MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
+MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board lB)
 {
-    int **grid = board->getGrid();
-    int bs = board->getBoardSize();
-    int player = getType();
-    int bestVal = (player == -1) ? MIN : MAX;
-    bool isMax = (player == 1);
+    int bestVal = (player == -1) ? MIN : MAX; //Set opposite values (P-1 wants to get a big value so it's preset is MIN)
+    bool isMax = (player == 1); //AI isn't the maximiser
     Move bestMove;
     bestMove.x = -1;
     bestMove.y = -1;
 
-    //Traverse all cells
-    for (int i = 0; i < bs; i++)
+    // Traverse all cells
+    for (int x = 0; x < bs; x++)
     {
-        for (int j = 0; j < bs; j++)
+        for (int y = 0; y < bs; y++)
         {
-            //Check if cell is empty
-            if (grid[i][j] == 0)
+            // Check if cell is empty
+            if (lB.grid[x][y] == 0)
             {
                 //Start by making the cell ours
-                grid[i][j] = player;
+                lB.grid[x][y] = player;
 
                 //Evaluate the move's value using minimax algorithm & alpha-beta pruning
-                int moveVal = minimax(board, bs, isMax, MIN, MAX);
+                int moveVal = minimax(lB, MAX_DEPTH, isMax, MIN, MAX);
 
                 //Reset the cell to unoccupied
-                grid[i][j] = 0;
+                lB.grid[x][y] = 0;
 
                 //If the move being tested is our current best
                 if (moveVal > bestVal)
                 {
                     //Set to best values
-                    bestMove.x = i;
-                    bestMove.y = j;
+                    bestMove.x = x;
+                    bestMove.y = y;
                     bestVal = moveVal;
                 }
             }
         }
     }
+
     //Clear console then print the value of the best move
     system("CLS");
     cout << "The value of the best Move is : " << bestVal << endl;
@@ -115,15 +125,12 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board *board)
     return bestMove;
 }
 
-int MinimaxPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int beta)
+int MinimaxPlayer::minimax(Board &lB, int depth, bool isMax, int alpha, int beta)
 {
-    int score = evaluate(board);
-    int **grid = board->getGrid();
-    int bs = board->getBoardSize();
-    int player = getType(), opponent = (getType() * -1);
+    int score = evaluate(lB, depth);
 
     //If the board is full without a winner then there is a tie
-    if (!isMovesLeft(grid, bs))
+    if (!isMovesLeft(lB.grid))
         return 0;
 
     //If Maximizer/Minimizer has won, return its score
@@ -141,18 +148,18 @@ int MinimaxPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int b
             for (int y = 0; y < bs; y++)
             {
                 // Check if cell is empty
-                if (grid[x][y] == 0)
+                if (lB.grid[x][y] == 0)
                 {
                     //Start by making the cell ours
-                    grid[x][y] = player;
+                    lB.grid[x][y] = player;
 
                     //Recursively call algorithm and choose max value
-                    best = max(best, minimax(board, depth - 1, !isMax, alpha, beta));
+                    best = max(best, minimax(lB, depth - 1, !isMax, alpha, beta));
                     //Set alpha to best if best is bigger
                     alpha = max(alpha, best);
 
                     //Reset the cell to unoccupied
-                    grid[x][y] = 0;
+                    lB.grid[x][y] = 0;
 
                     //Prune
                     if (beta <= alpha)
@@ -172,18 +179,18 @@ int MinimaxPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int b
             for (int y = 0; y < bs; y++)
             {
                 // Check if cell is empty
-                if (grid[x][y] == 0)
+                if (lB.grid[x][y] == 0)
                 {
                     // Make the move
-                    grid[x][y] = opponent;
+                    lB.grid[x][y] = opponent;
 
                     //Recursively call algorithm and choose min value
-                    best = min(best, minimax(board, depth - 1, !isMax, alpha, beta));
+                    best = min(best, minimax(lB, depth - 1, !isMax, alpha, beta));
                     //Set beta to best if best is smaller
                     beta = min(beta, best);
 
                     //Reset the cell to unoccupied
-                    grid[x][y] = 0;
+                    lB.grid[x][y] = 0;
 
                     //Prune
                     if (beta <= alpha)
@@ -198,36 +205,32 @@ int MinimaxPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int b
 //endregion
 
 //region Heuristic Evaluation
-int MinimaxPlayer::evaluate(Board *board)
+int MinimaxPlayer::evaluate(Board &lB, int depth)
 {
-    int spots = board->FSpotsSize();
-    int bs = board->getBoardSize();
+    int spots = lB.FSpotsSize();
+    int eval = MAX_DEPTH - depth;
 
     //Only check for a win if enough cells have been occupied
     if ((spots + (bs * 2 - 1)) <= (bs * bs))
     {
-        int player = getType(), opponent = (getType() * -1);
-
         //Check both players for a winner, first checking for a line, then using DFS
-        if (board->lineWin(player) || evaluateDFS(player, board))
-            return player * WIN_VAL;
-        else if (board->lineWin(opponent) || evaluateDFS(opponent, board))
-            return opponent * WIN_VAL;
+        if (lB.lineWin(player) || evaluateDFS(player, lB))
+            eval += (player * WIN_VAL);
+        else if (lB.lineWin(opponent) || evaluateDFS(opponent, lB))
+            eval += (opponent * WIN_VAL);
     }
-    return 0; //No winner
+    return eval;
 }
 
-bool MinimaxPlayer::evaluateDFS(int playerType, Board *board)
+bool MinimaxPlayer::evaluateDFS(int playerType, Board &lB)
 {
-    int bs = board->getBoardSize();
     stack<int> searchStack;
     vector<int> visitedStack;
 
-    //Add all freeSpots to be searched for a win
-    for (int i = 0; i < board->ASpotsSize(); i++)
-    {
-        searchStack.push(board->getASpots()[i]);
-    }
+    for (int i = 0; i < bs; i++)
+        for (int j = 0; j < bs; j++)
+            if (lB.grid[i][j] == playerType)
+                searchStack.push(lB.grid[i][j]);
 
     if (searchStack.empty())
         return false;
@@ -261,39 +264,17 @@ bool MinimaxPlayer::evaluateDFS(int playerType, Board *board)
         if (start && finish)
         {
             return true;
-        } else
-        {
-            stack<int> children = board->checkNeighbours(playerType, sX, sY);
-            while (!children.empty())
-            {
-                if (!isInVector(visitedStack, children.top()))
-                    searchStack.push(children.top());
-
-                children.pop();
-            }
         }
     }
 
     return false;
 }
-
-bool MinimaxPlayer::isInVector(vector<int> v, int e)
-{
-    if (v.empty())
-        return false;
-
-    for (int i : v)
-        if (i == e)
-            return true;
-
-    return false;
-}
 //endregion
 
-bool MinimaxPlayer::isMovesLeft(int **grid, int boardSize)
+bool MinimaxPlayer::isMovesLeft(int **grid)
 {
-    for (int i = 0; i < boardSize; i++)
-        for (int j = 0; j < boardSize; j++)
+    for (int i = 0; i < bs; i++)
+        for (int j = 0; j < bs; j++)
             if (grid[i][j] == 0)
                 return true;
     return false;
