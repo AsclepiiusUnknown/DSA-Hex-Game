@@ -81,7 +81,7 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
 
             if (board->grid[r][c] != 0)
             {
-                cout << endl << setw(5) << "X" << endl;
+                cout << setw(5) << "X" << endl;
                 continue;
             }
             Board tempBoard = *board;
@@ -134,16 +134,18 @@ double MonteCarloPlayer::expansion(int playerType, Board board)
     if (status == (playerType * WIN_VAL))
     {
         return 1.0;
-    } else if (status == 5) //if its a draw
+    }
+    else if (status == 5) //if its a draw
     {
         return 0.5;
-    } else if (status == 0) //Not finished and no winner
+    }
+    else if (status == 0) //Not finished and no winner
     {
         return 0.0;
     }
 
     int x, y;
-    getRandomMove(board.getFSpots(), x, y, board.getBoardSize());
+    getRandomMove(board.getFreeCells(), x, y, board.getBoardSize());
     board.addMove(playerType, x, y);
     playerType = (playerType == -1) ? 1 : -1;
     return expansion(playerType, board);
@@ -161,7 +163,7 @@ void MonteCarloPlayer::getRandomMove(vector<int> spots, int &x, int &y, int bs)
 //region Heuristic Evaluation
 int MonteCarloPlayer::evaluate(Board &lB)
 {
-    int spots = lB.FSpotsSize();
+    int spots = lB.freeCellsSize();
     int bs = lB.getBoardSize();
 
     //Check for a draw
@@ -213,7 +215,8 @@ bool MonteCarloPlayer::evaluateDFS(int playerType, Board &lB)
                 start = true;
             else if (sY == endGoal)
                 finish = true;
-        } else if (playerType == 1)
+        }
+        else if (playerType == 1)
         {
             if (sX == startGoal)
                 start = true;

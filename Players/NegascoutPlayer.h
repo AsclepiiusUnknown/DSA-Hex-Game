@@ -176,7 +176,7 @@ int NegascoutPlayer::minimax(Board *board, int depth, bool isMax, int alpha, int
 //region Heuristic Evaluation
 int NegascoutPlayer::evaluate(Board *board)
 {
-    int spots = board->FSpotsSize();
+    int spots = board->freeCellsSize();
     int bs = board->getBoardSize();
 
     //Only check for a win if enough cells have been occupied
@@ -199,10 +199,10 @@ bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deep
     stack<int> searchStack;
     vector<int> visitedStack;
 
-    //Add all freeSpots to be searched for a win
-    for (int i = 0; i < board->ASpotsSize(); i++)
+    //Add all emptyCells to be searched for a win
+    for (int i = 0; i < board->allCellsSize(); i++)
     {
-        searchStack.push(board->getASpots()[i]);
+        searchStack.push(board->getAllCells()[i]);
     }
 
     if (searchStack.empty())
@@ -226,7 +226,8 @@ bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deep
                 start = true;
             else if (sY == endGoal)
                 finish = true;
-        } else if (playerType == 1)
+        }
+        else if (playerType == 1)
         {
             if (sX == startGoal)
                 start = true;
@@ -237,7 +238,8 @@ bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deep
         if (start && finish)
         {
             return true;
-        } else
+        }
+        else
         {
             stack<int> children = board->checkNeighbours(playerType, sX, sY);
             while (!children.empty())

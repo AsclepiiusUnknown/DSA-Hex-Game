@@ -32,7 +32,7 @@ bool HumanPlayer::getMove(Board *board, int &x, int &y)
     do
     {
         cout << "Input row and column (x, y) between 1 to " << bs << " for " << name << ":";
-        board->printSpots(board->getFSpots());
+        board->printCells(board->getFreeCells());
         int row, col;
         cin >> row >> col;
         x = row - 1;

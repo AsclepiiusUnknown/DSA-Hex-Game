@@ -14,8 +14,6 @@ private:
     Board *board;
     Player *player[2];
 public:
-    bool canPlay = true;
-
     HexGame(Board *b, Player *p1, Player *p2)
     {
         board = b;
@@ -28,32 +26,36 @@ public:
 
 void HexGame::play()
 {
-    int won = 0;
+    int won = 0; //By default, no one has won
     board->printBoard(); //Print the game board to the screen
-    board->addSpots(); //Add all of the free coordinates to the freeSpots vector
+    board->addCells(); //Initialise the list of free spots
 
     //Loop until someone has won or the board has been filled
     while (!won && !board->isBoardFull())
     {
-        int playerType = board->getTurn();
+        int playerType = board->getTurn(); //Determine who's turn it is
         int playerIndex = (playerType == player[0]->getType()) ? 0 : 1;
         int x = -1;
         int y = -1;
 
+        //Get the coordinates of the move from the appropriate player
         if (!player[playerIndex]->getMove(board, x, y))
         {
+            //Debug if we are unable to make the move due to an error or full board
             cout << "ERROR: No available move" << endl;
             return;
         }
 
+        //Display the move that was made
         cout << player[playerIndex]->getPlayerName() << " played ";
         board->printCoord(x + 1, y + 1, false);
 
+        //Add the move to our board
         if (!board->addMove(playerType, x, y))
             return;
 
-        board->printBoard();
-        won = board->checkWinningStatus(playerType, x, y);
+        board->printBoard(); //Print the new board (old board + this move)
+        won = board->checkWinningStatus(playerType, x, y); //Check to see if this player has just won. If so, end the game and tell the players
         if (won == playerType)
             cout << player[playerIndex]->getPlayerName() << " player wins!" << endl;
     }

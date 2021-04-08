@@ -1,3 +1,5 @@
+#include <random>
+
 //region Definitions
 /*
  * RandomPlayer.h
@@ -13,7 +15,7 @@
 class MinimaxPlayer : public Player
 {
 public:
-    MinimaxPlayer(int t, string name = "Minimax") : // <--- add board here? is that possible/good (pointers?)??
+    MinimaxPlayer(int t, string name = "Minimax") :
             Player(t, name)
     {
     }
@@ -58,10 +60,9 @@ bool MinimaxPlayer::getMove(Board *board, int &x, int &y)
         return false;
     }
 
-    //Create a board
-    Board lB = *board;
     //Setup the global bs (board size) variable
-    bs = lB.getBoardSize();
+    bs = board->getBoardSize();
+    Board lB = *board;
 
     //Start the algorithm recursion to get the best move
     Move bestMove = findBestMove(lB);
@@ -85,11 +86,16 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board lB)
 {
     int bestVal = (player == -1) ? MIN : MAX; //Set opposite values (P-1 wants to get a big value so it's preset is MIN)
     bool isMax = (player == 1); //AI isn't the maximiser
+    int bs = lB.getBoardSize();
+    int freeTally = 0;
     Move bestMove;
     bestMove.x = -1;
     bestMove.y = -1;
 
-    // Traverse all cells
+    vector<int> emptyCells = lB.getFreeCells();
+    shuffle(emptyCells.begin(), emptyCells.end(), std::mt19937(std::random_device()()));
+
+    // Traverse all empty cells
     for (int x = 0; x < bs; x++)
     {
         for (int y = 0; y < bs; y++)
@@ -97,6 +103,7 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board lB)
             // Check if cell is empty
             if (lB.grid[x][y] == 0)
             {
+                freeTally++;
                 //Start by making the cell ours
                 lB.grid[x][y] = player;
 
@@ -118,8 +125,11 @@ MinimaxPlayer::Move MinimaxPlayer::findBestMove(Board lB)
         }
     }
 
+    cout << freeTally << "empty cells were found by minimax!!" << endl;
+
+
     //Clear console then print the value of the best move
-    system("CLS");
+    //system("CLS");
     cout << "The value of the best Move is : " << bestVal << endl;
 
     return bestMove;
@@ -169,7 +179,8 @@ int MinimaxPlayer::minimax(Board &lB, int depth, bool isMax, int alpha, int beta
         }
         maxPrune:
         return best;
-    } else //If it's the minimizer's move
+    }
+    else //If it's the minimizer's move
     {
         int best = MAX; //1000
 
@@ -207,7 +218,7 @@ int MinimaxPlayer::minimax(Board &lB, int depth, bool isMax, int alpha, int beta
 //region Heuristic Evaluation
 int MinimaxPlayer::evaluate(Board &lB, int depth)
 {
-    int spots = lB.FSpotsSize();
+    int spots = lB.freeCellsSize();
     int eval = MAX_DEPTH - depth;
 
     //Only check for a win if enough cells have been occupied
@@ -253,7 +264,8 @@ bool MinimaxPlayer::evaluateDFS(int playerType, Board &lB)
                 start = true;
             else if (sY == endGoal)
                 finish = true;
-        } else if (playerType == 1)
+        }
+        else if (playerType == 1)
         {
             if (sX == startGoal)
                 start = true;
@@ -266,7 +278,6 @@ bool MinimaxPlayer::evaluateDFS(int playerType, Board &lB)
             return true;
         }
     }
-
     return false;
 }
 //endregion

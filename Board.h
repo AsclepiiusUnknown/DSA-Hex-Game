@@ -11,14 +11,18 @@
 #include<vector>
 #include<stack>
 #include<algorithm>
+#include <windows.h>
+
+using namespace std;
+
 
 class Board
 {
 private:
     int boardSize;
     int turn;
-    vector<int> freeSpots;
-    vector<int> allSpots;
+    vector<int> emptyCells;
+    vector<int> allCells;
 public:
     Board(int bs)
     {
@@ -66,33 +70,33 @@ public:
     }
 
     //region Spots
-    void addSpots();
+    void addCells();
 
-    void printSpots(vector<int> spots);
+    void printCells(vector<int> spots);
 
     //region Free Spots
-    vector<int> getFSpots()
+    vector<int> getFreeCells()
     {
-        return freeSpots;
+        return emptyCells;
     }
 
-    int FSpotsSize()
+    int freeCellsSize()
     {
-        return freeSpots.size();
+        return emptyCells.size();
     }
 
-    void removeASpot(int x, int y);
+    void removeFreeCell(int x, int y);
     //endregion
 
     //region All Spots
-    vector<int> getASpots()
+    vector<int> getAllCells()
     {
-        return allSpots;
+        return allCells;
     }
 
-    int ASpotsSize()
+    int allCellsSize()
     {
-        return allSpots.size();
+        return allCells.size();
     }
     //endregion
 
@@ -148,18 +152,18 @@ public:
     }
 };
 
-void Board::addSpots()
+void Board::addCells()
 {
     for (int x = 0; x < boardSize; x++)
         for (int y = 0; y < boardSize; y++)
         {
             int value = x * boardSize + y;
-            freeSpots.push_back(value);
-            allSpots.push_back(value);
+            emptyCells.push_back(value);
+            allCells.push_back(value);
         }
 }
 
-void Board::printSpots(vector<int> spots)
+void Board::printCells(vector<int> spots)
 {
     int x, y;
     int tally = 0;
@@ -170,7 +174,8 @@ void Board::printSpots(vector<int> spots)
         {
             tally = x;
             cout << endl;
-        } else
+        }
+        else
         {
             cout << ", ";
         }
@@ -180,15 +185,15 @@ void Board::printSpots(vector<int> spots)
     cout << endl;
 }
 
-void Board::removeASpot(int x, int y)
+void Board::removeFreeCell(int x, int y)
 {
     int value = x * boardSize + y;
 
-    for (int i = 0; i < freeSpots.size(); i++)
+    for (int i = 0; i < emptyCells.size(); i++)
     {
-        if (freeSpots[i] == value)
+        if (emptyCells[i] == value)
         {
-            freeSpots.erase(freeSpots.begin() + i);
+            emptyCells.erase(emptyCells.begin() + i);
             break;
         }
     }
@@ -226,15 +231,7 @@ bool Board::addMove(int playerIndex, int x, int y)
     }
 
     grid[x][y] = playerIndex;
-    removeASpot(x, y);
-
-//    stack<int> neighbours = checkNeighbours(playerIndex, x, y); //Printing Neighbours
-//    if (!neighbours.empty())
-//    {
-//        cout << ", which connects to: ";
-//        printNeighbours(neighbours);
-//    } else
-//        cout << endl;
+    removeFreeCell(x, y);
 
     turn = -1 * turn;
     return true;
@@ -242,88 +239,140 @@ bool Board::addMove(int playerIndex, int x, int y)
 
 void Board::printBoard()
 {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
     cout << endl;
 
-    //Top X numbers
+    //SECTION - Top numbers (X)
     cout << "    ";
     for (int j = 0; j < boardSize; j++)
     {
-        if (j < 9) cout << "_" << j + 1 << "_.";
-        else cout << "" << j + 1 << "_.";
+        if (j < 9)
+        {
+            cout << "_";
+        }
+        SetConsoleTextAttribute(hConsole, 12);//RED
+        cout << j + 1;
+        SetConsoleTextAttribute(hConsole, 15);//WHITE
+        cout << "_.";
     }
     cout << endl;
 
-    //RHS Y numbers & grid
+    //SECTION - GRID
     for (int i = 0; i < boardSize; i++)
     {
+        //SECTION - Left Spacing
         for (int k = 0; k < i; k++)
             cout << "  ";
 
-        if (i < 9) cout << " " << i + 1 << " ";
-        else cout << i + 1 << " ";
+        //SECTION - Left numbers ())
+        if (i < 9)
+            cout << " ";
+        SetConsoleTextAttribute(hConsole, 9);//BLUE
+        cout << i + 1;
+        SetConsoleTextAttribute(hConsole, 15);//WHITE
+        cout << " ";
 
+        //SECTION - Loop through all cells
         for (int j = 0; j < boardSize; j++)
         {
+            //SECTION - Empty Cells
             if (grid[i][j] == 0)
             {
                 if (j == 0)
                 {
                     cout << "|___|";
-                } else
+                }
+                else
                 {
                     cout << "___|";
                 }
-            } else if (grid[i][j] == 1)
+            }
+                //SECTION - X Cells
+            else if (grid[i][j] == 1)
             {
+                //First cell
                 if (j == 0)
                 {
-                    cout << "|_X_|";
-                } else
-                {
-                    cout << "_X_|";
+                    cout << "|_";
+                    SetConsoleTextAttribute(hConsole, 12);//RED
+                    cout << "X";
+                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    cout << "_|";
                 }
-            } else
+                    //All other Cells
+                else
+                {
+                    cout << "_";
+                    SetConsoleTextAttribute(hConsole, 12);//RED
+                    cout << "X";
+                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    cout << "_|";
+                }
+            }
+                //SECTION - O Cells
+            else
             {
+                //First cell
                 if (j == 0)
                 {
-                    cout << "|_O_|";
-                } else
+                    cout << "|_";
+                    SetConsoleTextAttribute(hConsole, 9);//BLUE
+                    cout << "O";
+                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    cout << "_|";
+                }
+                    //All other Cells
+                else
                 {
-                    cout << "_O_|";
+                    cout << "_";
+                    SetConsoleTextAttribute(hConsole, 9);//BLUE
+                    cout << "O";
+                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    cout << "_|";
                 }
             }
         }
-        if (i < boardSize - 1)
-            cout << "_" << i + 1;
-        else
-            cout << " " << i + 1;
 
-        if (i == boardSize / 2 || i == boardSize / 2 + 0.5) cout << "   Y Goal";
+        //SECTION - Close End Boxes & Right Numbers (O)
+        if (i < boardSize - 1)
+        {
+            cout << "_";
+            SetConsoleTextAttribute(hConsole, 9);//BLUE
+            cout << i + 1;
+            SetConsoleTextAttribute(hConsole, 15);//WHITE
+        }
+        else
+        {
+            cout << " ";
+            SetConsoleTextAttribute(hConsole, 9);//BLUE
+            cout << i + 1;
+            SetConsoleTextAttribute(hConsole, 15);//WHITE
+        }
         cout << endl;
     }
 
-    //Bottom Numbers
+    //SECTION - Bottom Numbers
     for (int s = 0; s < boardSize; s++)
         cout << "  ";
     cout << "  ";
     for (int e = 0; e < boardSize; e++)
     {
-        if (e < 9) cout << " " << e + 1 << "  ";
-        else cout << " " << e + 1 << " ";
+        if (e < 9)
+        {
+            cout << " ";
+        }
+        SetConsoleTextAttribute(hConsole, 12);//RED
+        cout << e + 1;
+        SetConsoleTextAttribute(hConsole, 15);//WHITE
+        cout << "  ";
     }
-    cout << endl;
-
-    //Bottom Goal Tag
-    for (int g = 0; g < boardSize * 3; g++)
-        cout << " ";
-    cout << " X Goal" << endl;
-
     cout << endl;
 }
 
 bool Board::isBoardFull()
 {
-    if (freeSpots.size() > 0)
+    if (emptyCells.size() > 0)
         return false;
 
     cout << "Woops! The board is full and no one has won, looks like it's game over." << endl;
@@ -346,13 +395,14 @@ bool Board::isFullThisTurn()
     {
         cout << "Yikes, looks like there's only one free spot. Better make this move count or its game over." << endl;
         return true;
-    } else
+    }
+    else
         return false;
 }
 
 int Board::checkWinningStatus(int playerType, int x, int y)
 {
-    if ((freeSpots.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
+    if ((emptyCells.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
     {
         if (lineWin(playerType) || checkWinDFS(playerType, x, y))
             return playerType;
@@ -438,7 +488,8 @@ bool Board::checkWinDFS(int playerType, int x, int y) //DFS
                 start = true;
             else if (sY == endGoal)
                 finish = true;
-        } else if (playerType == 1)
+        }
+        else if (playerType == 1)
         {
             if (sX == startGoal)
                 start = true;
@@ -449,7 +500,8 @@ bool Board::checkWinDFS(int playerType, int x, int y) //DFS
         if (start && finish)
         {
             return true;
-        } else
+        }
+        else
         {
             stack<int> children = checkNeighbours(playerType, sX, sY);
             while (!children.empty())
