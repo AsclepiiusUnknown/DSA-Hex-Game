@@ -1,10 +1,3 @@
-/*
- * RandomPlayer.h
- *
- *  Created on: 22/03/2021
- *      Author: Broderick Westrope
- */
-
 #ifndef RANDOMPLAYER_H_
 #define RANDOMPLAYER_H_
 
@@ -33,7 +26,6 @@ bool RandomPlayer::getMove(Board *board, int &x, int &y)
         return false;
     }
 
-    srand(time(NULL));
     vector<int> spots = board->getFreeCells();
     int index = rand() % (spots.size());
 

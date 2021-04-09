@@ -1,10 +1,3 @@
-/*
- * HumanPlayer.h
- *
- *  Created on: 21/02/2021
- *      Author: dongmo
- */
-
 #ifndef HUMANPLAYER_H_
 #define HUMANPLAYER_H_
 
@@ -42,7 +35,7 @@ bool HumanPlayer::getMove(Board *board, int &x, int &y)
             cout << "Invalid input! Please input again." << endl;
     } while (flag);
 
-    system("CLS");
+    //system("CLS");
     return true;
 }
 

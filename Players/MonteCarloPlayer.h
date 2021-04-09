@@ -1,10 +1,3 @@
-/*
- * RandomPlayer.h
- *
- *  Created on: 22/03/2021
- *      Author: Broderick Westrope
- */
-
 #ifndef MONTECARLOPLAYER_H_
 #define MONTECARLOPLAYER_H_
 
@@ -44,7 +37,7 @@ public:
 
     const int WIN_VAL = 10;
 
-    int player = getType(), opponent = (getType() * -1);
+    int player = type, opponent = (type * -1);
 
     bool getMove(Board *, int &, int &);
 
@@ -52,9 +45,9 @@ public:
 
     double expansion(int playerType, Board board);
 
-    int evaluate(Board &lB);
+    int evaluate(Board lB);
 
-    bool evaluateDFS(int playerType, Board &lB);
+    bool evaluateDFS(int playerType, Board lB);
 
     void getRandomMove(vector<int> spots, int &x, int &y, int bs);
 };
@@ -66,8 +59,6 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
         cout << "ERROR: Random player can't move cause the board is full!" << endl;
         return false;
     }
-
-    system("CLS");
 
     int bs = board->getBoardSize();
 
@@ -84,9 +75,13 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
                 cout << setw(5) << "X" << endl;
                 continue;
             }
-            Board tempBoard = *board;
 
+            Board tempBoard(*board);
             tempBoard.addMove(player, r, c);
+
+            //fixme cout << "board " << board->freeCellsSize() << endl;
+            //fixme cout << "temp " << tempBoard.freeCellsSize() << endl;
+
             if (tempBoard.checkWinningStatus(player, r, c))
             {
                 x = r;
@@ -107,10 +102,11 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
     {
         x = moves.top().x;
         y = moves.top().y;
-        cout << "Best value " << moves.top().v << endl;
+        cout << "Best value: " << moves.top().v << endl;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 double MonteCarloPlayer::simulation(Board board)
@@ -129,61 +125,54 @@ double MonteCarloPlayer::simulation(Board board)
 double MonteCarloPlayer::expansion(int playerType, Board board)
 {
     int status = evaluate(board);
+    //fixme cout << status << endl;
 
     //If this player is winning
-    if (status == (playerType * WIN_VAL))
-    {
+    if (status == player)
         return 1.0;
-    }
-    else if (status == 5) //if its a draw
-    {
-        return 0.5;
-    }
-    else if (status == 0) //Not finished and no winner
-    {
+    else if (status == 0) //Not finished and no winner (!= ??)
         return 0.0;
-    }
 
     int x, y;
     getRandomMove(board.getFreeCells(), x, y, board.getBoardSize());
+    printf("Success!!!");
     board.addMove(playerType, x, y);
-    playerType = (playerType == -1) ? 1 : -1;
+    playerType *= -1;
     return expansion(playerType, board);
 }
 
 void MonteCarloPlayer::getRandomMove(vector<int> spots, int &x, int &y, int bs)
 {
-    srand(time(NULL));
-
     int i = rand() % spots.size();
     x = i / bs;
     y = i % bs;
 }
 
 //region Heuristic Evaluation
-int MonteCarloPlayer::evaluate(Board &lB)
+int MonteCarloPlayer::evaluate(Board lB)
 {
     int spots = lB.freeCellsSize();
     int bs = lB.getBoardSize();
+    //fixme cout << spots << endl;
 
-    //Check for a draw
-    if (spots <= 0)
-        return 5;
-
-    // Only check for a win if enough cells have been occupie
+    // Only check for a win if enough cells have been occupied
     if ((spots + (bs * 2 - 1)) <= (bs * bs))
     {
+        printf("Checking...");
         //Check both players for a winner, first checking for a line, then using DFS
         if (lB.lineWin(player) || evaluateDFS(player, lB))
-            return (player * WIN_VAL);
+            return (player);
         else if (lB.lineWin(opponent) || evaluateDFS(opponent, lB))
-            return (opponent * WIN_VAL);
+            return (opponent);
     }
 
-    return 0; //continue value
+    if (spots > 0)
+        return 0; //continue value
+
+    return 5; //Error Check (should either be a win or some spots left)
 }
 
-bool MonteCarloPlayer::evaluateDFS(int playerType, Board &lB)
+bool MonteCarloPlayer::evaluateDFS(int playerType, Board lB)
 {
     stack<int> searchStack;
     vector<int> visitedStack;

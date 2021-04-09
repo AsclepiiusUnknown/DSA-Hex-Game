@@ -1,10 +1,3 @@
-/*
- * Player.h
- *
- *  Created on: 21/02/2021
- *      Author: dongmo
- */
-
 #ifndef PLAYER_H_
 #define PLAYER_H_
 

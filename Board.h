@@ -1,10 +1,3 @@
-/*
- * BaseBoard.h
- *
- *  Created on: 21/02/2021
- *      Author: Dongmo
- */
-
 #ifndef BOARD_H_
 #define BOARD_H_
 
@@ -61,12 +54,16 @@ public:
                 grid[i][j] = 0;
 
         for (int i = 0; i < boardSize; i++)
+        {
             for (int j = 0; j < boardSize; j++)
             {
                 grid[i][j] = cboard.getGridVal(i, j);
             }
+        }
 
         turn = cboard.getTurn();
+        emptyCells = cboard.emptyCells;
+        allCells = cboard.allCells;
     }
 
     //region Spots

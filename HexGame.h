@@ -1,10 +1,3 @@
-/*
- * HexGame.h
- *
- *  Created on: 21/02/2021
- *      Author: dongmo
- */
-
 #ifndef HEXGAME_H_
 #define HEXGAME_H_
 
@@ -21,11 +14,14 @@ public:
         player[1] = p2;
     }
 
-    void play();
+    int play(bool showAll);
 };
 
-void HexGame::play()
+int HexGame::play(bool showAll)
 {
+    if (!showAll)
+        system("CLS");
+
     int won = 0; //By default, no one has won
     board->printBoard(); //Print the game board to the screen
     board->addCells(); //Initialise the list of free spots
@@ -43,8 +39,11 @@ void HexGame::play()
         {
             //Debug if we are unable to make the move due to an error or full board
             cout << "ERROR: No available move" << endl;
-            return;
+            return 0;
         }
+
+        if (!showAll)
+            system("CLS");
 
         //Display the move that was made
         cout << player[playerIndex]->getPlayerName() << " played ";
@@ -52,13 +51,18 @@ void HexGame::play()
 
         //Add the move to our board
         if (!board->addMove(playerType, x, y))
-            return;
+            return 0;
 
         board->printBoard(); //Print the new board (old board + this move)
         won = board->checkWinningStatus(playerType, x, y); //Check to see if this player has just won. If so, end the game and tell the players
         if (won == playerType)
+        {
             cout << player[playerIndex]->getPlayerName() << " player wins!" << endl;
+            return playerType;
+        }
     }
+
+    return 0;
 }
 
 #endif /* HEXGAME_H_ */
