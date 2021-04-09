@@ -24,7 +24,7 @@ public:
     struct Move
     {
         int x, y; //coordinates for the move
-        int v; //Move value
+        double v; //Move value
 
         Move(int _x, int _y, double _v) : x(_x), y(_y), v(_v)
         {}
@@ -43,13 +43,13 @@ public:
 
     double simulation(Board board);
 
-    double expansion(int playerType, Board board);
+    double expansion(int playerType, Board board, double depth);
 
     int evaluate(Board lB);
 
     bool evaluateDFS(int playerType, Board lB);
 
-    void getRandomMove(vector<int> spots, int &x, int &y, int bs);
+    void getRandomMove(int &x, int &y, Board board);
 };
 
 bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
@@ -77,7 +77,9 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
             }
 
             Board tempBoard(*board);
-            tempBoard.addMove(player, r, c);
+            tempBoard.grid[r][c] = player;
+            tempBoard.removeFreeCell(r, c);
+            //tempBoard.addMove(player, r, c);
 
             //fixme cout << "board " << board->freeCellsSize() << endl;
             //fixme cout << "temp " << tempBoard.freeCellsSize() << endl;
@@ -93,7 +95,7 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
 
             Move m(r, c, utility);
             moves.push(m);
-            cout << setw(5) << m.v << " " << endl;
+            cout << setw(5) << m.v << endl;
         }
         cout << endl;
     }
@@ -117,32 +119,39 @@ double MonteCarloPlayer::simulation(Board board)
     for (int i = 0; i < times; i++)
     {
         Board tempBoard(board);
-        winning += expansion(opponent, tempBoard);
+        winning += expansion(opponent, tempBoard, 0);
     }
     return (winning / (double) times);
 }
 
-double MonteCarloPlayer::expansion(int playerType, Board board)
+double MonteCarloPlayer::expansion(int playerType, Board board, double depth)
 {
     int status = evaluate(board);
     //fixme cout << status << endl;
 
     //If this player is winning
     if (status == player)
-        return 1.0;
-    else if (status == 0) //Not finished and no winner (!= ??)
+        return 1.0 - depth;
+    else if (status == opponent)
+        return -1.0 + depth;
+    else if (status != 0) //Continue if we aren't finished and no winner
         return 0.0;
 
     int x, y;
-    getRandomMove(board.getFreeCells(), x, y, board.getBoardSize());
-    printf("Success!!!");
-    board.addMove(playerType, x, y);
+    getRandomMove(x, y, board);
+    board.grid[x][y] = player;
+    board.removeFreeCell(x, y);
     playerType *= -1;
-    return expansion(playerType, board);
+    depth += 0.05;
+    return expansion(playerType, board, depth);
 }
 
-void MonteCarloPlayer::getRandomMove(vector<int> spots, int &x, int &y, int bs)
+void
+MonteCarloPlayer::getRandomMove(int &x, int &y, Board board)//fixme used to have spots passed through here but caused issues because spots wasnt being updated when using grid to add manually
 {
+    vector<int> spots = board.getFreeCells();
+    int bs = board.getBoardSize();
+
     int i = rand() % spots.size();
     x = i / bs;
     y = i % bs;
@@ -158,7 +167,6 @@ int MonteCarloPlayer::evaluate(Board lB)
     // Only check for a win if enough cells have been occupied
     if ((spots + (bs * 2 - 1)) <= (bs * bs))
     {
-        printf("Checking...");
         //Check both players for a winner, first checking for a line, then using DFS
         if (lB.lineWin(player) || evaluateDFS(player, lB))
             return (player);
