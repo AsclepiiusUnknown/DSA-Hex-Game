@@ -17,12 +17,13 @@ using namespace std;
 class MonteCarloPlayer : public Player
 {
 public:
-    MonteCarloPlayer(int t, string symbol = "Undefined (ERROR)", string name = "Monte Carlo") :
-            Player(t, symbol, name)
+    MonteCarloPlayer(int t, string symbol = "Undefined (ERROR)", double times = 2500, string name = "Monte Carlo") :
+            Player(t, symbol, name), times(times)
     {
     }
 
     int player = type, opponent = -type, bs;
+    double times;
 
     bool GetMove(Board *board, int &x, int &y);
 
@@ -114,7 +115,6 @@ Move MonteCarloPlayer::BestMove(Board *board)
 
 double MonteCarloPlayer::Simulation(Board board)
 {
-    int times = 1000 * (16 - bs);
     double winning = 0.0;
 
     for (int i = 0; i < times; i++)

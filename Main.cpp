@@ -17,7 +17,10 @@ struct Setup
     Player *p1;
     Player *p2;
     Board *board;
-    int times = 1;
+
+    int times;
+    double p1Accuracy = 0;
+    double p2Accuracy = 0;
 };
 
 struct Stats
@@ -26,6 +29,9 @@ struct Stats
     vector<int> turnsTaken;
     string p1Name;
     string p2Name;
+    int boardsize;
+    double p1Accuracy;
+    double p2Accuracy;
 };
 
 Setup Human();
@@ -71,6 +77,9 @@ int main()
     Stats stats;
     stats.p1Name = setup.p1->getPlayerName();
     stats.p2Name = setup.p2->getPlayerName();
+    stats.boardsize = setup.board->getBoardSize();
+    stats.p1Accuracy = setup.p1Accuracy;
+    stats.p2Accuracy = setup.p2Accuracy;
 
     do
     {
@@ -128,9 +137,22 @@ Setup Human()
     //region Pre-Human Input
     //SECTION - Get Input for who the player wants to verse (default is of type RandomPlayer)
     int p2Type = 1;
-    cout << "Who do you want to verse? (0 = another player, 1 = Bad AI, 2 = Better AI, 3 = Best AI)" << endl;
+    cout << "Who do you want to verse? (0 = another player, 1 = Random AI, 2 = Monte-Carlo AI, 3 = Minimax AI)" << endl;
     cin >> p2Type;
     system("CLS");
+
+    //SECTION - Monte-Carlo AI Accuracy Input
+    double accuracy = 2.5;
+    if (p2Type == 2)
+    {
+        cout << "How accurate do you want the AI to be? (Between 1 and 10)" << endl;
+        cin >> accuracy;
+        if (accuracy <= 0)
+            accuracy = 1;
+        else if (accuracy > 10)
+            accuracy = 10;
+        system("CLS");
+    }
 
     //SECTION - Get input for the size of the board. When using Minimax, this is restricted to a board of either 3 or 4
     int boardSize = 5;
@@ -176,7 +198,8 @@ Setup Human()
         }
         case 2:     //Monte Carlo Player 2 (Medium AI that takes samples of random positions and chooses the best one through heuristic analysis)
         {
-            p2 = new MonteCarloPlayer(-1, "Naughts (O)");
+            accuracy *= 1000;
+            p2 = new MonteCarloPlayer(-1, "Naughts (O)", accuracy);
             break;
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
@@ -203,6 +226,7 @@ Setup Human()
     setup.p1 = p1;
     setup.p2 = p2;
     setup.board = board;
+    setup.p2Accuracy = accuracy;
 
     return setup;
 }
@@ -222,6 +246,32 @@ Setup Simulation()
     cout << "Who do you want as player 2? (1 = Bad AI, 2 = Better AI, 3 = Best AI)" << endl;
     cin >> p2Type;
     system("CLS");
+
+    //SECTION - AI1 Accuracy Input
+    double accuracy1 = 2.5;
+    if (p1Type == 2)
+    {
+        cout << "How accurate do you want the player 1 AI to be? (Between 1 and 10)" << endl;
+        cin >> accuracy1;
+        if (accuracy1 <= 0)
+            accuracy1 = 1;
+        else if (accuracy1 > 10)
+            accuracy1 = 10;
+        system("CLS");
+    }
+
+    //SECTION - AI2 Accuracy Input
+    double accuracy2 = 2.5;
+    if (p2Type == 2)
+    {
+        cout << "How accurate do you want the player 2 AI to be? (Between 1 and 10)" << endl;
+        cin >> accuracy2;
+        if (accuracy2 <= 0)
+            accuracy2 = 1;
+        else if (accuracy2 > 10)
+            accuracy2 = 10;
+        system("CLS");
+    }
 
     //SECTION - Get input for the size of the board
     int boardSize = 10;
@@ -259,7 +309,7 @@ Setup Simulation()
         }
         case 2:     //Monte Carlo Player 1 (Medium AI that takes samples of random positions and chooses the best one through heuristic analysis)
         {
-            p1 = new MonteCarloPlayer(1, "Crosses (X)");
+            p1 = new MonteCarloPlayer(1, "Crosses (X)", accuracy1 * 1000);
             break;
         }
         case 3:     //Minimax Player 1 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
@@ -290,7 +340,7 @@ Setup Simulation()
         }
         case 2:     //Monte Carlo Player 2 (Medium AI that takes samples of random positions and chooses the best one through heuristic analysis)
         {
-            p2 = new MonteCarloPlayer(-1, "Naughts (O)");
+            p2 = new MonteCarloPlayer(-1, "Naughts (O)", accuracy2 * 1000);
             break;
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
@@ -318,6 +368,8 @@ Setup Simulation()
     setup.p2 = p2;
     setup.board = board;
     setup.times = times;
+    setup.p1Accuracy = accuracy1;
+    setup.p2Accuracy = accuracy2;
 
     return setup;
 }
@@ -349,8 +401,19 @@ void PrintResults(Stats stats)
     cout << setprecision(0) << setw(colWidth) << "PLAYER INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
     cout << setprecision(0) << setw(colWidth) << "Player Type" << setprecision(4) << setw(colWidth) << stats.p1Name << setw(colWidth) << stats.p2Name << endl;
 
+    //SECTION - Accuracy
+    if (stats.p1Accuracy == 0 && stats.p2Accuracy == 0)
+        cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << "N/A" << setw(colWidth) << "N/A" << endl;
+    else if (stats.p1Accuracy == 0)
+        cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << "N/A" << setw(colWidth) << stats.p2Accuracy << endl;
+    else if (stats.p2Accuracy == 0)
+        cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << stats.p1Accuracy << setw(colWidth) << "N/A" << endl;
+    else
+        cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << stats.p1Accuracy << setw(colWidth) << stats.p2Accuracy << endl;
 
     //region WIN INFO
+    cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
+    cout << setfill(' ') << fixed;
     cout << setprecision(0) << setw(colWidth) << "WIN INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
 
     //Loop through all the wins, counting for each side and making a list of the winning indicies (for later)
@@ -382,6 +445,8 @@ void PrintResults(Stats stats)
     //endregion
 
     //region TURN INFO
+    cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
+    cout << setfill(' ') << fixed;
     cout << setprecision(0) << setw(colWidth) << "TURN INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
 
     int xTurns = 0, oTurns = 0;
@@ -438,6 +503,20 @@ void PrintResults(Stats stats)
         oWinTurns = oWinTurns / oWins;
     cout << setprecision(0) << setw(colWidth) << "Avg Turns Per Win" << setprecision(4) << setw(colWidth) << xWinTurns << setw(colWidth) << oWinTurns << endl;
     //endregion
+
+
+    //SECTION - Board Info
+    cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
+    cout << setfill(' ') << fixed;
+    xPct = round((static_cast<double>(xAvg) / (stats.boardsize * stats.boardsize)) * 100);
+    oPct = round((static_cast<double>(oAvg) / (stats.boardsize * stats.boardsize)) * 100);
+    xPctString = std::to_string(xPct) + "%";
+    oPctString = std::to_string(oPct) + "%";
+    cout << setprecision(0) << setw(colWidth) << "BOARD INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
+    cout << setprecision(0) << setw(colWidth) << "Board Size" << setprecision(4) << setw(colWidth) << stats.boardsize << setw(colWidth) << stats.boardsize << endl;
+    cout << setprecision(0) << setw(colWidth) << "Number of Cells" << setprecision(4) << setw(colWidth) << stats.boardsize * stats.boardsize << setw(colWidth) << stats.boardsize * stats.boardsize
+         << endl;
+    cout << setprecision(0) << setw(colWidth) << "Avg % of Board Used" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
     //endregion
 
     cout << setfill('*') << setw(3 * colWidth) << "*" << endl;
