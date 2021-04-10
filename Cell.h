@@ -1,26 +1,27 @@
-/*
- * Cell.h
- *
- *  Created on: 26 Mar. 2019
- *      Author: dongmo
- */
-
 #ifndef CELL_H_
 #define CELL_H_
 
 struct Cell
 {
-    int x;
-    int y;
-    double heuristic;
+    int x, y; //coordinates for the cell
 
-    Cell(int xx, int yy, double hh) : x(xx), y(yy), heuristic(hh)
+    Cell(int _x, int _y) : x(_x), y(_y)
     {}
 
-    bool operator<(const Cell &c) const
+};
+
+struct Move
+{
+    int x, y; //coordinates for the move
+    double v; //Cell value
+
+    Move(int _x, int _y, double _v) : x(_x), y(_y), v(_v)
+    {}
+
+    bool operator<(const Move &m) const
     {
-        return heuristic < c.heuristic;
-    }
+        return v < m.v;
+    };
 };
 
 #endif /* CELL_H_ */

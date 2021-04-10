@@ -13,8 +13,8 @@
 class NegascoutPlayer : public Player
 {
 public:
-    NegascoutPlayer(int t, string name = "NegascoutPlayer") :
-            Player(t, name)
+    NegascoutPlayer(int t, string symbol = "Undefined (ERROR)", string name = "Negascout") :
+            Player(t, symbol, name)
     {
     }
 
@@ -28,7 +28,7 @@ public:
     const int WIN_VAL = 10;
 
     //region Functions
-    bool getMove(Board *, int &, int &);
+    bool GetMove(Board *, int &, int &);
 
     bool isMovesLeft(int **grid, int boardSize);
 
@@ -40,12 +40,12 @@ public:
 
     Move findBestMove(Board *board);
 
-    bool isInVector(vector<int> v, int e);
+    bool isInVector(vector<Cell> v, Cell e);
 
     //endregion
 };
 
-bool NegascoutPlayer::getMove(Board *board, int &x, int &y)
+bool NegascoutPlayer::GetMove(Board *board, int &x, int &y)
 {
     if (board->isBoardFull())
     {
@@ -111,7 +111,7 @@ NegascoutPlayer::Move NegascoutPlayer::findBestMove(Board *board)
     }
     //Clear console then print the value of the best move
     system("CLS");
-    cout << "The value of the best Move is : " << bestVal << endl;
+    cout << "The value of the best Cell is : " << bestVal << endl;
 
     return bestMove;
 }
@@ -185,9 +185,9 @@ int NegascoutPlayer::evaluate(Board *board)
         int player = getType(), opponent = (getType() * -1);
 
         //Check both players for a winner, first checking for a line, then using DFS
-        if (board->lineWin(player) || evaluateDFS(board, player))
+        if (board->CheckLine(player) || evaluateDFS(board, player))
             return player * WIN_VAL;
-        else if (board->lineWin(opponent) || evaluateDFS(board, opponent))
+        else if (board->CheckLine(opponent) || evaluateDFS(board, opponent))
             return opponent * WIN_VAL;
     }
     return 0; //No winner
@@ -196,8 +196,8 @@ int NegascoutPlayer::evaluate(Board *board)
 bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deepening Depth-First Search
 {
     int bs = board->getBoardSize();
-    stack<int> searchStack;
-    vector<int> visitedStack;
+    stack<Cell> searchStack;
+    vector<Cell> visitedStack;
 
     //Add all emptyCells to be searched for a win
     for (int i = 0; i < board->allCellsSize(); i++)
@@ -213,25 +213,22 @@ bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deep
 
     while (!searchStack.empty())
     {
-        int s = searchStack.top();
+        Cell s = searchStack.top();
         searchStack.pop();
         visitedStack.push_back(s);
 
-        int sX = s / bs;
-        int sY = s % bs;
-
         if (playerType == -1)
         {
-            if (sY == startGoal)
+            if (s.y == startGoal)
                 start = true;
-            else if (sY == endGoal)
+            else if (s.y == endGoal)
                 finish = true;
         }
         else if (playerType == 1)
         {
-            if (sX == startGoal)
+            if (s.x == startGoal)
                 start = true;
-            else if (sX == endGoal)
+            else if (s.x == endGoal)
                 finish = true;
         }
 
@@ -241,7 +238,7 @@ bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deep
         }
         else
         {
-            stack<int> children = board->checkNeighbours(playerType, sX, sY);
+            stack<Cell> children = board->CheckNeighbours(playerType, s.x, s.y);
             while (!children.empty())
             {
                 if (!isInVector(visitedStack, children.top()))
@@ -255,13 +252,13 @@ bool NegascoutPlayer::evaluateDFS(Board *board, int playerType) //Iterative Deep
     return false;
 }
 
-bool NegascoutPlayer::isInVector(vector<int> v, int e)
+bool NegascoutPlayer::isInVector(vector<Cell> v, Cell e)
 {
     if (v.empty())
         return false;
 
-    for (int i : v)
-        if (i == e)
+    for (Cell i : v)
+        if (i.x == e.x && i.y == e.y)
             return true;
 
     return false;

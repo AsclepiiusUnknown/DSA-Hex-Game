@@ -10,49 +10,36 @@
 #include "vector"
 #include "queue"
 #include "time.h"
+#include "../Cell.h"
 
 using namespace std;
 
 class MonteCarloPlayer : public Player
 {
 public:
-    MonteCarloPlayer(int t, string name = "Monte Carlo") :
-            Player(t, name)
+    MonteCarloPlayer(int t, string symbol = "Undefined (ERROR)", string name = "Monte Carlo") :
+            Player(t, symbol, name)
     {
     }
 
-    struct Move
-    {
-        int x, y; //coordinates for the move
-        double v; //Move value
+    int player = type, opponent = -type, bs;
 
-        Move(int _x, int _y, double _v) : x(_x), y(_y), v(_v)
-        {}
+    bool GetMove(Board *board, int &x, int &y);
 
-        bool operator<(const Move &m) const
-        {
-            return v < m.v;
-        };
-    };
+    double Simulation(Board board);
 
-    const int WIN_VAL = 10;
+    double Expansion(int playerType, Board board, double depth);
 
-    int player = type, opponent = (type * -1);
+    int Evaluate(Board board);
 
-    bool getMove(Board *, int &, int &);
+    bool EvaluateDFS(int playerType, Board board);
 
-    double simulation(Board board);
+    Cell RandomMove(Board board);
 
-    double expansion(int playerType, Board board, double depth);
-
-    int evaluate(Board lB);
-
-    bool evaluateDFS(int playerType, Board lB);
-
-    void getRandomMove(int &x, int &y, Board board);
+    Move BestMove(Board *board);
 };
 
-bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
+bool MonteCarloPlayer::GetMove(Board *board, int &x, int &y)
 {
     if (board->isBoardFull())
     {
@@ -60,148 +47,168 @@ bool MonteCarloPlayer::getMove(Board *board, int &x, int &y)
         return false;
     }
 
-    int bs = board->getBoardSize();
+    bs = board->getBoardSize();
+    Move m = BestMove(board);
+    x = m.x;
+    y = m.y;
 
+    //Check if our coordinate values are valid and log an error if not
+    if (!board->validInput(x, y))
+    {
+        cout << "ERROR: Monte Carlo input was invalid" << endl;
+        return false;
+    }
+
+    return true;
+}
+
+Move MonteCarloPlayer::BestMove(Board *board)
+{
     priority_queue<Move> moves;
     cout << "Values of Moves: " << endl;
     for (int r = 0; r < bs; r++)
     {
         for (int c = 0; c < bs; c++)
         {
-            board->printCoord(r, c, false);
+            board->printCoord(r + 1, c + 1, false);
 
-            if (board->grid[r][c] != 0)
+            if (board->grid[r][c] == 1)
             {
-                cout << setw(5) << "X" << endl;
+                cout << setw(8) << "X" << endl;
+                continue;
+            }
+            else if (board->grid[r][c] == -1)
+            {
+                cout << setw(8) << "O" << endl;
                 continue;
             }
 
             Board tempBoard(*board);
             tempBoard.grid[r][c] = player;
             tempBoard.removeFreeCell(r, c);
-            //tempBoard.addMove(player, r, c);
 
-            //fixme cout << "board " << board->freeCellsSize() << endl;
-            //fixme cout << "temp " << tempBoard.freeCellsSize() << endl;
-
-            if (tempBoard.checkWinningStatus(player, r, c))
+            if (tempBoard.CheckForWin(player, r, c))
             {
-                x = r;
-                y = c;
-                return true;
+                printf("Winning move found!");
+                return {r, c, 1};
             }
 
-            double utility = simulation(tempBoard);
+            double value = Simulation(tempBoard);
 
-            Move m(r, c, utility);
+            Move m(r, c, value);
             moves.push(m);
-            cout << setw(5) << m.v << endl;
+            cout << setw(8) << m.v << endl;
         }
         cout << endl;
     }
 
     if (!moves.empty())
     {
-        x = moves.top().x;
-        y = moves.top().y;
         cout << "Best value: " << moves.top().v << endl;
-        return true;
+        return moves.top();
     }
 
-    return false;
+    cout << "ERROR: No appropriate move was found by Monte Carlo" << endl;
+    return {-1, -1, 0};
 }
 
-double MonteCarloPlayer::simulation(Board board)
+double MonteCarloPlayer::Simulation(Board board)
 {
-    int times = 10000;
+    int times = 1000 * (16 - bs);
     double winning = 0.0;
 
     for (int i = 0; i < times; i++)
     {
         Board tempBoard(board);
-        winning += expansion(opponent, tempBoard, 0);
+        winning += Expansion(opponent, tempBoard, 0);
     }
     return (winning / (double) times);
 }
 
-double MonteCarloPlayer::expansion(int playerType, Board board, double depth)
+double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
 {
-    int status = evaluate(board);
-    //fixme cout << status << endl;
+    int status = Evaluate(board);
 
-    //If this player is winning
     if (status == player)
+    {
+        //printf("WIN\n");
         return 1.0 - depth;
+    }
     else if (status == opponent)
-        return -1.0 + depth;
-    else if (status != 0) //Continue if we aren't finished and no winner
+    {
+        //printf("LOSS\n");
+        return -1.0 - depth;
+    }
+    else if (status != 0)
+    {
+        //cout << "ERROR: Invalid evaluation status found in Monte Carlo" << endl;
         return 0.0;
+    }
 
-    int x, y;
-    getRandomMove(x, y, board);
-    board.grid[x][y] = player;
-    board.removeFreeCell(x, y);
-    playerType *= -1;
-    depth += 0.05;
-    return expansion(playerType, board, depth);
+    Cell c = RandomMove(board);
+    board.grid[c.x][c.y] = playerType;
+    board.removeFreeCell(c.x, c.y);
+    playerType = (playerType == player) ? opponent : player;
+    return Expansion(playerType, board, depth + 0.05);
 }
 
-void
-MonteCarloPlayer::getRandomMove(int &x, int &y, Board board)//fixme used to have spots passed through here but caused issues because spots wasnt being updated when using grid to add manually
+Cell MonteCarloPlayer::RandomMove(Board board)
 {
-    vector<int> spots = board.getFreeCells();
-    int bs = board.getBoardSize();
+    vector<Cell> spots = board.getFreeCells();
 
     int i = rand() % spots.size();
-    x = i / bs;
-    y = i % bs;
+    int x = spots[i].x;
+    int y = spots[i].y;
+
+    if (!board.validInput(x, y))
+        printf("ERROR: Invalid input created by random move within Monte Carlo");
+
+    return Cell(x, y);
 }
 
 //region Heuristic Evaluation
-int MonteCarloPlayer::evaluate(Board lB)
+int MonteCarloPlayer::Evaluate(Board board)
 {
-    int spots = lB.freeCellsSize();
-    int bs = lB.getBoardSize();
-    //fixme cout << spots << endl;
+    int freeCount = board.freeCellsSize();
 
     // Only check for a win if enough cells have been occupied
-    if ((spots + (bs * 2 - 1)) <= (bs * bs))
+    if ((freeCount + (bs * 2 - 1)) <= (bs * bs))
     {
         //Check both players for a winner, first checking for a line, then using DFS
-        if (lB.lineWin(player) || evaluateDFS(player, lB))
+        if (board.CheckLine(player) || EvaluateDFS(player, board))
             return (player);
-        else if (lB.lineWin(opponent) || evaluateDFS(opponent, lB))
+        else if (board.CheckLine(opponent) || EvaluateDFS(opponent, board))
             return (opponent);
     }
 
-    if (spots > 0)
+    if (freeCount > 0)
         return 0; //continue value
 
-    return 5; //Error Check (should either be a win or some spots left)
+    return 5; //Error Check (shouldn't reach this point)
 }
 
-bool MonteCarloPlayer::evaluateDFS(int playerType, Board lB)
+bool MonteCarloPlayer::EvaluateDFS(int playerType, Board board)
 {
-    stack<int> searchStack;
-    vector<int> visitedStack;
-    int bs = lB.getBoardSize();
+    stack<int> search;
+    vector<int> visited;
+    int bs = board.getBoardSize();
 
     for (int i = 0; i < bs; i++)
         for (int j = 0; j < bs; j++)
-            if (lB.grid[i][j] == playerType)
-                searchStack.push(lB.grid[i][j]);
+            if (board.grid[i][j] == playerType)
+                search.push(board.grid[i][j]);
 
-    if (searchStack.empty())
+    if (search.empty())
         return false;
 
     bool start = false, finish = false;
     int startGoal = 0, endGoal = bs - 1;
 
-    while (!searchStack.empty())
+    while (!search.empty())
     {
-        int s = searchStack.top();
-        searchStack.pop();
-        visitedStack.push_back(s);
+        int s = search.top();
+        search.pop();
+        visited.push_back(s);
 
         int sX = s / bs;
         int sY = s % bs;

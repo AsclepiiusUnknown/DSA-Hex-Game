@@ -7,7 +7,6 @@
 #include "Players/RandomPlayer.h"
 #include "Players/MonteCarloPlayer.h"
 #include "Players/MinimaxPlayer.h"
-#include "Players/MinimaxPlayer2.h"
 #include "Players/NegascoutPlayer.h"
 #include <windows.h>
 
@@ -25,6 +24,8 @@ struct Stats
 {
     vector<int> wins;
     vector<int> turnsTaken;
+    string p1Name;
+    string p2Name;
 };
 
 Setup Human();
@@ -42,7 +43,7 @@ int main()
     //SECTION - AI Simulation Check
     string yesNo;
     Setup setup;
-    cout << "Do you want to run an AI simulation? [y/n] (use capitals if you want to see all moves)" << endl;
+    cout << "Do you want to run an AI Simulation? [y/n] (use capitals if you want to see all moves)" << endl;
     cin >> yesNo;
     if (yesNo == "Y" || yesNo == "y")
     {
@@ -68,6 +69,8 @@ int main()
         showAll = false;
 
     Stats stats;
+    stats.p1Name = setup.p1->getPlayerName();
+    stats.p2Name = setup.p2->getPlayerName();
 
     do
     {
@@ -230,9 +233,9 @@ Setup Simulation()
         boardSize = 15;
     system("CLS");
 
-    //SECTION - Get No. of times to run the simulation
+    //SECTION - Get No. of times to run the Simulation
     int times = 10;
-    cout << "How many times did you want to run the simulation? (Between 1 and 100)" << endl;
+    cout << "How many times did you want to run the Simulation? (Between 1 and 100)" << endl;
     cin >> times;
     if (boardSize < 1)
         boardSize = 1;
@@ -342,6 +345,11 @@ void PrintResults(Stats stats)
     //endregion
 
     //region Data
+    //SECTION - Player Type
+    cout << setprecision(0) << setw(colWidth) << "PLAYER INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
+    cout << setprecision(0) << setw(colWidth) << "Player Type" << setprecision(4) << setw(colWidth) << stats.p1Name << setw(colWidth) << stats.p2Name << endl;
+
+
     //region WIN INFO
     cout << setprecision(0) << setw(colWidth) << "WIN INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
 
@@ -366,8 +374,8 @@ void PrintResults(Stats stats)
     cout << setprecision(0) << setw(colWidth) << "No. of Wins" << setprecision(4) << setw(colWidth) << xWins << setw(colWidth) << oWins << endl;
 
     //SECTION - Win Percent
-    double xPct = round((xWins / stats.wins.size()) * 100);
-    double oPct = (oWins / stats.wins.size()) * 100;
+    int xPct = round((static_cast<double>(xWins) / stats.wins.size()) * 100);
+    int oPct = round((static_cast<double>(oWins) / stats.wins.size()) * 100);
     string xPctString = std::to_string(xPct) + "%";
     string oPctString = std::to_string(oPct) + "%";
     cout << setprecision(0) << setw(colWidth) << "% of Wins" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
@@ -408,12 +416,12 @@ void PrintResults(Stats stats)
     cout << setprecision(0) << setw(colWidth) << "Total Turns" << setprecision(4) << setw(colWidth) << xTurns << setw(colWidth) << oTurns << endl;
 
     //SECTION - Average number of turns per round
-    double xAvg = xTurns / stats.turnsTaken.size();
-    double oAvg = oTurns / stats.turnsTaken.size();
+    int xAvg = round(xTurns / stats.turnsTaken.size());
+    int oAvg = round(oTurns / stats.turnsTaken.size());
     cout << setprecision(0) << setw(colWidth) << "Average Turns" << setprecision(4) << setw(colWidth) << xAvg << setw(colWidth) << oAvg << endl;
 
     //SECTION - Avg Turns Per Win
-    double xWinTurns = 0;
+    int xWinTurns = 0;
     for (int i:xIndices)
     {
         xWinTurns += xTurnsTaken[i];
@@ -421,7 +429,7 @@ void PrintResults(Stats stats)
     if (xWins != 0)
         xWinTurns = xWinTurns / xWins;
 
-    double oWinTurns = 0;
+    int oWinTurns = 0;
     for (int i:oIndices)
     {
         oWinTurns += oTurnsTaken[i];
@@ -433,5 +441,6 @@ void PrintResults(Stats stats)
     //endregion
 
     cout << setfill('*') << setw(3 * colWidth) << "*" << endl;
+    cout << setfill(' ') << setw(3 * colWidth) << " " << endl;
 }
 //y 1 1 6 3

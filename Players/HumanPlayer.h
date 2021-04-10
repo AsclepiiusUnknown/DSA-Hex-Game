@@ -6,15 +6,15 @@ using namespace std;
 class HumanPlayer : public Player
 {
 public:
-    HumanPlayer(int t, string name = "Human") :
-            Player(t, name)
+    HumanPlayer(int t, string symbol = "Undefined (ERROR)", string name = "Human") :
+            Player(t, symbol, name)
     {
     }
 
-    bool getMove(Board *, int &, int &);
+    bool GetMove(Board *, int &, int &);
 };
 
-bool HumanPlayer::getMove(Board *board, int &x, int &y)
+bool HumanPlayer::GetMove(Board *board, int &x, int &y)
 {
     bool flag = false;
     bool lastTurn = false;
@@ -25,7 +25,7 @@ bool HumanPlayer::getMove(Board *board, int &x, int &y)
     do
     {
         cout << "Input row and column (x, y) between 1 to " << bs << " for " << name << ":";
-        board->printCells(board->getFreeCells());
+        board->PrintCells(board->getFreeCells());
         int row, col;
         cin >> row >> col;
         x = row - 1;

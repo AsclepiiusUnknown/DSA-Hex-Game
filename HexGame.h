@@ -22,8 +22,8 @@ int HexGame::play(bool showAll)
     if (!showAll)
         system("CLS");
 
-    int won = 0; //By default, no one has won
-    board->printBoard(); //Print the game board to the screen
+    bool won = false; //By default, no one has won
+    board->PrintBoard(); //Print the game board to the screen
     board->addCells(); //Initialise the list of free spots
 
     //Loop until someone has won or the board has been filled
@@ -35,10 +35,12 @@ int HexGame::play(bool showAll)
         int y = -1;
 
         //Get the coordinates of the move from the appropriate player
-        if (!player[playerIndex]->getMove(board, x, y))
+        if (!player[playerIndex]->GetMove(board, x, y))
         {
             //Debug if we are unable to make the move due to an error or full board
-            cout << "ERROR: No available move" << endl;
+            cout << "ERROR: No available move for ";
+            board->printCoord(x + 1, y + 1, false);
+            cout << endl;
             return 0;
         }
 
@@ -46,16 +48,16 @@ int HexGame::play(bool showAll)
             system("CLS");
 
         //Display the move that was made
-        cout << player[playerIndex]->getPlayerName() << " played ";
+        cout << player[playerIndex]->getPlayerSymbol() << " played ";
         board->printCoord(x + 1, y + 1, false);
 
         //Add the move to our board
         if (!board->addMove(playerType, x, y))
             return 0;
 
-        board->printBoard(); //Print the new board (old board + this move)
-        won = board->checkWinningStatus(playerType, x, y); //Check to see if this player has just won. If so, end the game and tell the players
-        if (won == playerType)
+        board->PrintBoard(); //Print the new board (old board + this move)
+        won = board->CheckForWin(playerType, x, y); //Check to see if this player has just won. If so, end the game and tell the players
+        if (won)
         {
             cout << player[playerIndex]->getPlayerName() << " player wins!" << endl;
             return playerType;

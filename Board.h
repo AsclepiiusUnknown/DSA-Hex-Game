@@ -5,6 +5,7 @@
 #include<stack>
 #include<algorithm>
 #include <windows.h>
+#include "Cell.h"
 
 using namespace std;
 
@@ -14,8 +15,8 @@ class Board
 private:
     int boardSize;
     int turn;
-    vector<int> emptyCells;
-    vector<int> allCells;
+    vector<Cell> emptyCells;
+    vector<Cell> allCells;
 public:
     Board(int bs)
     {
@@ -69,10 +70,10 @@ public:
     //region Spots
     void addCells();
 
-    void printCells(vector<int> spots);
+    void PrintCells(vector<Cell> cells);
 
     //region Free Spots
-    vector<int> getFreeCells()
+    vector<Cell> getFreeCells()
     {
         return emptyCells;
     }
@@ -86,7 +87,7 @@ public:
     //endregion
 
     //region All Spots
-    vector<int> getAllCells()
+    vector<Cell> getAllCells()
     {
         return allCells;
     }
@@ -125,28 +126,25 @@ public:
 
     bool addMove(int playerIndex, int x, int y);
 
-    int checkWinningStatus(int playerType, int x, int y);
+    bool CheckForWin(int playerType, int x, int y);
 
-    bool lineWin(int playerType);
+    bool CheckLine(int playerType);
 
-    bool checkWinDFS(int playerType, int x, int y);
+    bool CheckDFS(int playerType, int x, int y);
 
-    void printBoard();
+    void PrintBoard();
 
     bool isBoardFull();
 
     bool isFullThisTurn();
 
-    stack<int> checkNeighbours(int player, int x, int y);
+    stack<Cell> CheckNeighbours(int player, int x, int y);
 
-    void printNeighbours(stack<int> s);
+    void PrintNeighbours(stack<Cell> s);
 
     void printCoord(int x, int y, bool el);
 
-    int CoordToInt(int x, int y)
-    {
-        return (x * boardSize + y);
-    }
+    bool isInVector(vector<Cell> v, Cell e);
 };
 
 void Board::addCells()
@@ -154,19 +152,19 @@ void Board::addCells()
     for (int x = 0; x < boardSize; x++)
         for (int y = 0; y < boardSize; y++)
         {
-            int value = x * boardSize + y;
-            emptyCells.push_back(value);
-            allCells.push_back(value);
+            Cell cell(x, y);
+            emptyCells.push_back(cell);
+            allCells.push_back(cell);
         }
 }
 
-void Board::printCells(vector<int> spots)
+void Board::PrintCells(vector<Cell> cells)
 {
     int x, y;
     int tally = 0;
-    for (int i = 0; i < spots.size(); i++)
+    for (int i = 0; i < cells.size(); i++)
     {
-        x = (spots[i] / boardSize) + 1, y = (spots[i] % boardSize) + 1;
+        x = cells[i].x + 1, y = cells[i].y + 1;
         if (x > tally)
         {
             tally = x;
@@ -184,11 +182,9 @@ void Board::printCells(vector<int> spots)
 
 void Board::removeFreeCell(int x, int y)
 {
-    int value = x * boardSize + y;
-
     for (int i = 0; i < emptyCells.size(); i++)
     {
-        if (emptyCells[i] == value)
+        if (emptyCells[i].x == x && emptyCells[i].y == y)
         {
             emptyCells.erase(emptyCells.begin() + i);
             break;
@@ -234,7 +230,7 @@ bool Board::addMove(int playerIndex, int x, int y)
     return true;
 }
 
-void Board::printBoard()
+void Board::PrintBoard()
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -397,17 +393,17 @@ bool Board::isFullThisTurn()
         return false;
 }
 
-int Board::checkWinningStatus(int playerType, int x, int y)
+bool Board::CheckForWin(int playerType, int x, int y)
 {
     if ((emptyCells.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
     {
-        if (lineWin(playerType) || checkWinDFS(playerType, x, y))
-            return playerType;
+        if (CheckLine(playerType) || CheckDFS(playerType, x, y))
+            return true;
     }
-    return 0;
+    return false;
 }
 
-bool Board::lineWin(int playerType)
+bool Board::CheckLine(int playerType)
 {
     bool line;
 
@@ -447,50 +443,45 @@ bool Board::lineWin(int playerType)
                 return true;
         }
 
-    line = true;
     for (int i = 0; i < boardSize - 1; i++)
     {
-        if (grid[i][boardSize - i] != grid[i + 1][boardSize - i - 1] || grid[i][boardSize - i] != playerType)
+        if (grid[i][boardSize - 1 - i] != grid[i + 1][boardSize - 2 - i] || grid[i][boardSize - 1 - i] != playerType)
         {
-            line = false;
-            break;
+            return false;
         }
     }
 
-    return line;
+    return true;
 }
 
-bool Board::checkWinDFS(int playerType, int x, int y) //DFS
+bool Board::CheckDFS(int playerType, int x, int y) //DFS
 {
-    stack<int> trackStack = checkNeighbours(playerType, x, y);
-    vector<int> visitedStack;
-    if (trackStack.empty())
+    stack<Cell> search = CheckNeighbours(playerType, x, y);
+    vector<Cell> visited;
+    if (search.empty())
         return false;
 
     bool start = false, finish = false;
     int startGoal = 0, endGoal = boardSize - 1;
 
-    while (!trackStack.empty())
+    while (!search.empty())
     {
-        int s = trackStack.top();
-        trackStack.pop();
-        visitedStack.push_back(s);
-
-        int sX = s / boardSize;
-        int sY = s % boardSize;
+        Cell s = search.top();
+        search.pop();
+        visited.push_back(s);
 
         if (playerType == -1)
         {
-            if (sY == startGoal)
+            if (s.y == startGoal)
                 start = true;
-            else if (sY == endGoal)
+            else if (s.y == endGoal)
                 finish = true;
         }
         else if (playerType == 1)
         {
-            if (sX == startGoal)
+            if (s.x == startGoal)
                 start = true;
-            else if (sX == endGoal)
+            else if (s.x == endGoal)
                 finish = true;
         }
 
@@ -500,33 +491,28 @@ bool Board::checkWinDFS(int playerType, int x, int y) //DFS
         }
         else
         {
-            stack<int> children = checkNeighbours(playerType, sX, sY);
+            stack<Cell> children = CheckNeighbours(playerType, s.x, s.y);
             while (!children.empty())
             {
-                if (find(visitedStack.begin(), visitedStack.end(), children.top()) !=
-                    visitedStack.end())
-                    children.pop();
-                else
-                {
-                    trackStack.push(children.top());
-                    children.pop();
-                }
+                if (!isInVector(visited, children.top()))
+                    search.push(children.top());
+                children.pop();
             }
         }
     }
     return false;
 }
 
-stack<int> Board::checkNeighbours(int player, int x, int y)
+stack<Cell> Board::CheckNeighbours(int player, int x, int y)
 {
-    stack<int> neighbours;
-    int value;
+    stack<Cell> neighbours;
+    Cell value(0, 0);
 
     //Left
     if ((y - 1) >= 0)
         if (grid[x][y - 1] == player)
         {
-            value = CoordToInt(x, (y - 1));
+            value.x = x, value.y = y - 1;
             neighbours.push(value);
         }
 
@@ -534,7 +520,7 @@ stack<int> Board::checkNeighbours(int player, int x, int y)
     if ((y + 1) < boardSize)
         if (grid[x][y + 1] == player)
         {
-            value = CoordToInt(x, (y + 1));
+            value.x = x, value.y = y + 1;
             neighbours.push(value);
         }
 
@@ -542,7 +528,7 @@ stack<int> Board::checkNeighbours(int player, int x, int y)
     if ((x - 1) >= 0)
         if (grid[x - 1][y] == player)
         {
-            value = CoordToInt((x - 1), y);
+            value.x = x - 1, value.y = y;
             neighbours.push(value);
         }
 
@@ -550,7 +536,7 @@ stack<int> Board::checkNeighbours(int player, int x, int y)
     if ((x - 1) >= 0 && (y + 1) < boardSize)
         if (grid[x - 1][y + 1] == player)
         {
-            value = CoordToInt((x - 1), (y + 1));
+            value.x = x - 1, value.y = y + 1;
             neighbours.push(value);
         }
 
@@ -558,7 +544,7 @@ stack<int> Board::checkNeighbours(int player, int x, int y)
     if ((x + 1) < boardSize && (y - 1) >= 0)
         if (grid[x + 1][y - 1] == player)
         {
-            value = CoordToInt((x + 1), (y - 1));
+            value.x = x + 1, value.y = y - 1;
             neighbours.push(value);
         }
 
@@ -566,27 +552,37 @@ stack<int> Board::checkNeighbours(int player, int x, int y)
     if ((x + 1) < boardSize)
         if (grid[x + 1][y] == player)
         {
-            value = CoordToInt((x + 1), y);
+            value.x = x + 1, value.y = y;
             neighbours.push(value);
         }
 
     return neighbours;
 }
 
-void Board::printNeighbours(stack<int> s)
+void Board::PrintNeighbours(stack<Cell> s)
 {
     if (s.empty())
         return;
 
-    int t = s.top();
+    Cell t = s.top();
     s.pop();
 
-    printNeighbours(s);
+    PrintNeighbours(s);
 
-    int x = t / boardSize;
-    int y = t % boardSize;
-    printCoord(x + 1, y + 1, false);
+    printCoord(s.top().x + 1, s.top().y + 1, false);
     cout << ", ";
+}
+
+bool Board::isInVector(vector<Cell> v, Cell e)
+{
+    if (v.empty())
+        return false;
+
+    for (Cell i : v)
+        if (i.x == e.x && i.y == e.y)
+            return true;
+
+    return false;
 }
 
 void Board::printCoord(int x, int y, bool el)

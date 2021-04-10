@@ -7,7 +7,6 @@ CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../HexGame.h
 CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../Main.cpp
 CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../Players/HumanPlayer.h
 CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../Players/MinimaxPlayer.h
-CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../Players/MinimaxPlayer2.h
 CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../Players/MonteCarloPlayer.h
 CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../Players/NegascoutPlayer.h
 CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj: ../Players/Player.h

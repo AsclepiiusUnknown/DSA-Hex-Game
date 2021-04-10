@@ -6,9 +6,10 @@ class Player
 protected:
     int type;
     string name;
+    string symbol;
 public:
-    Player(int t, string i) :
-            type(t), name(i)
+    Player(int t, string s, string n) :
+            type(t), symbol(s), name(n)
     {
     }
 
@@ -17,12 +18,17 @@ public:
         return name;
     }
 
+    string getPlayerSymbol()
+    {
+        return symbol;
+    }
+
     int getType()
     {
         return type;
     }
 
-    virtual bool getMove(Board *board, int &x, int &y) = 0;
+    virtual bool GetMove(Board *board, int &x, int &y) = 0;
 
 
     virtual ~Player()
