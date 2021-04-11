@@ -122,9 +122,15 @@ public:
         return turn;
     }
 
+    bool setTurn(int playerType)
+    {
+        turn = playerType;
+        return true;
+    }
+
     bool validInput(int, int);
 
-    bool addMove(int playerIndex, int x, int y);
+    bool AddMove(int playerIndex, int x, int y);
 
     bool CheckForWin(int playerType, int x, int y);
 
@@ -145,6 +151,8 @@ public:
     void printCoord(int x, int y, bool el);
 
     bool isInVector(vector<Cell> v, Cell e);
+
+    bool AddTestMove(int playerIndex, int x, int y);
 };
 
 void Board::addCells()
@@ -196,20 +204,20 @@ bool Board::validInput(int x, int y)
 {
     if (x < 0 || y < 0 || x >= boardSize || y >= boardSize)
     {
-        cout << "Node (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
+        cout << "Invalid Move. Node (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
         return false;
     }
 
     if (grid[x][y] != 0)
     {
-        cout << "Invalid move. The cell has been occupied." << endl;
+        cout << "Invalid move. The cell (" << x + 1 << ", " << y + 1 << ") has been occupied." << endl;
         return false;
     }
 
     return true;
 }
 
-bool Board::addMove(int playerIndex, int x, int y)
+bool Board::AddMove(int playerIndex, int x, int y)
 {
     if (playerIndex != turn)
     {
@@ -227,6 +235,20 @@ bool Board::addMove(int playerIndex, int x, int y)
     removeFreeCell(x, y);
 
     turn = -1 * turn;
+    return true;
+}
+
+bool Board::AddTestMove(int playerIndex, int x, int y)
+{
+    if (!validInput(x, y))
+    {
+        printf("ERROR: Invalid input used within Board's Add Test Move function\n");
+        return false;
+    }
+
+    grid[x][y] = playerIndex;
+    removeFreeCell(x, y);
+
     return true;
 }
 

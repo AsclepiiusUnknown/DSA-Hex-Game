@@ -14,10 +14,10 @@ public:
         player[1] = p2;
     }
 
-    int play(bool showAll);
+    int play(bool showAll, int startPlayer);
 };
 
-int HexGame::play(bool showAll)
+int HexGame::play(bool showAll, int startPlayer)
 {
     if (!showAll)
         system("CLS");
@@ -25,6 +25,7 @@ int HexGame::play(bool showAll)
     bool won = false; //By default, no one has won
     board->PrintBoard(); //Print the game board to the screen
     board->addCells(); //Initialise the list of free spots
+    board->setTurn(startPlayer);
 
     //Loop until someone has won or the board has been filled
     while (!won && !board->isBoardFull())
@@ -52,7 +53,7 @@ int HexGame::play(bool showAll)
         board->printCoord(x + 1, y + 1, false);
 
         //Add the move to our board
-        if (!board->addMove(playerType, x, y))
+        if (!board->AddMove(playerType, x, y))
             return 0;
 
         board->PrintBoard(); //Print the new board (old board + this move)

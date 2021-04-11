@@ -9,6 +9,7 @@
 #include "Players/MinimaxPlayer.h"
 #include "Players/NegascoutPlayer.h"
 #include <windows.h>
+#include "chrono"
 
 using namespace std;
 
@@ -18,7 +19,7 @@ struct Setup
     Player *p2;
     Board *board;
 
-    int times;
+    int times = 1;
     double p1Accuracy = 0;
     double p2Accuracy = 0;
 };
@@ -27,6 +28,7 @@ struct Stats
 {
     vector<int> wins;
     vector<int> turnsTaken;
+    vector<int> durations;
     string p1Name;
     string p2Name;
     int boardsize;
@@ -81,12 +83,15 @@ int main()
     stats.p1Accuracy = setup.p1Accuracy;
     stats.p2Accuracy = setup.p2Accuracy;
 
-    do
+    int startingPlayer = 1;
+    while (setup.times > 0)
     {
         Board *currentBoard = new Board(setup.board->getBoardSize());
         //Create and begin a new game using our predetermined values
         HexGame game(currentBoard, setup.p1, setup.p2);
-        int winner = game.play(showAll);
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        int winner = game.play(showAll, startingPlayer);
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
         if (winner == 1 || winner == -1)
             stats.wins.push_back(winner);
@@ -97,7 +102,7 @@ int main()
         }
 
         stats.turnsTaken.push_back((currentBoard->getBoardSize() * currentBoard->getBoardSize()) - currentBoard->freeCellsSize());
-
+        stats.durations.push_back(static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(end - begin).count()));
 
         if (setup.times <= 1) //If this is meant to be the last round check if they want to play another
         {
@@ -117,13 +122,16 @@ int main()
             else if (yesNo == "N" || yesNo == "n")
                 cout << "Okay, bye." << endl;
             else if (yesNo == "R")
+            {
+                system("CLS");
                 goto RESTART;
+            }
             else
                 cout << "Invalid input so I'll take that as a no. Bye." << endl;
         }
         setup.times--;
-    } while (setup.times > 0);
-
+        startingPlayer *= (-1);
+    }
 
     delete setup.board;
     delete setup.p1;
@@ -249,7 +257,7 @@ Setup Simulation()
 
     //SECTION - AI1 Accuracy Input
     double accuracy1 = 2.5;
-    if (p1Type == 2)
+    if (p1Type == 2 || p1Type == 3)
     {
         cout << "How accurate do you want the player 1 AI to be? (Between 1 and 10)" << endl;
         cin >> accuracy1;
@@ -262,7 +270,7 @@ Setup Simulation()
 
     //SECTION - AI2 Accuracy Input
     double accuracy2 = 2.5;
-    if (p2Type == 2)
+    if (p2Type == 2 || p2Type == 3)
     {
         cout << "How accurate do you want the player 2 AI to be? (Between 1 and 10)" << endl;
         cin >> accuracy2;
@@ -314,7 +322,7 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 1 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p1 = new MinimaxPlayer(1, "Crosses (X)");
+            p1 = new MinimaxPlayer(-1, "Naughts (O)", (double) (accuracy1 * 10 / 2));
             break;
         }
         case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -345,7 +353,7 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)");
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", (double) (accuracy1 * 10 / 2));
             break;
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -514,9 +522,23 @@ void PrintResults(Stats stats)
     oPctString = std::to_string(oPct) + "%";
     cout << setprecision(0) << setw(colWidth) << "BOARD INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
     cout << setprecision(0) << setw(colWidth) << "Board Size" << setprecision(4) << setw(colWidth) << stats.boardsize << setw(colWidth) << stats.boardsize << endl;
-    cout << setprecision(0) << setw(colWidth) << "Number of Cells" << setprecision(4) << setw(colWidth) << stats.boardsize * stats.boardsize << setw(colWidth) << stats.boardsize * stats.boardsize
+    cout << setprecision(0) << setw(colWidth) << "Total No. of Cells" << setprecision(4) << setw(colWidth) << stats.boardsize * stats.boardsize << setw(colWidth) << stats.boardsize * stats.boardsize
          << endl;
     cout << setprecision(0) << setw(colWidth) << "Avg % of Board Used" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
+
+    //SECTION - Round Duration
+    cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
+    cout << setfill(' ') << fixed;
+    cout << setprecision(0) << setw(colWidth) << "TIME INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
+    int totalDur = 0.0;
+    for (int i = 0; i < stats.durations.size(); i++)
+    {
+        totalDur += stats.durations[i];
+        cout << setprecision(0) << setw(colWidth) << "Round " + to_string(i + 1) + " Duration" << setprecision(4) << setw(colWidth) << "(Seconds)" << setw(colWidth) << stats.durations[i]
+             << endl;
+    }
+    totalDur = round(totalDur / stats.durations.size());
+    cout << setprecision(0) << setw(colWidth) << "Avg Round Duration" << setprecision(4) << setw(colWidth) << "(Seconds)" << setw(colWidth) << totalDur << endl;
     //endregion
 
     cout << setfill('*') << setw(3 * colWidth) << "*" << endl;

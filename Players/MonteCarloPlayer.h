@@ -31,7 +31,7 @@ public:
 
     double Expansion(int playerType, Board board, double depth);
 
-    int Evaluate(Board board);
+    int Evaluate(Board board, int x, int y);
 
     bool EvaluateDFS(int playerType, Board board);
 
@@ -85,8 +85,7 @@ Move MonteCarloPlayer::BestMove(Board *board)
             }
 
             Board tempBoard(*board);
-            tempBoard.grid[r][c] = player;
-            tempBoard.removeFreeCell(r, c);
+            tempBoard.AddTestMove(player, r, c);
 
             if (tempBoard.CheckForWin(player, r, c))
             {
@@ -98,7 +97,7 @@ Move MonteCarloPlayer::BestMove(Board *board)
 
             Move m(r, c, value);
             moves.push(m);
-            cout << setw(8) << m.v << endl;
+            cout << setw(8) << value << endl;
         }
         cout << endl;
     }
@@ -127,7 +126,11 @@ double MonteCarloPlayer::Simulation(Board board)
 
 double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
 {
-    int status = Evaluate(board);
+    Cell c = RandomMove(board);
+    if (!board.AddTestMove(playerType, c.x, c.y))
+        printf("ERROR: Invalid input created by Monte-Carlo's Random Move function\n");
+
+    int status = Evaluate(board, c.x, c.y);
 
     if (status == player)
     {
@@ -137,7 +140,7 @@ double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
     else if (status == opponent)
     {
         //printf("LOSS\n");
-        return -1.0 - depth;
+        return -1.0 + depth;
     }
     else if (status != 0)
     {
@@ -145,9 +148,6 @@ double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
         return 0.0;
     }
 
-    Cell c = RandomMove(board);
-    board.grid[c.x][c.y] = playerType;
-    board.removeFreeCell(c.x, c.y);
     playerType = (playerType == player) ? opponent : player;
     return Expansion(playerType, board, depth + 0.05);
 }
@@ -160,14 +160,11 @@ Cell MonteCarloPlayer::RandomMove(Board board)
     int x = spots[i].x;
     int y = spots[i].y;
 
-    if (!board.validInput(x, y))
-        printf("ERROR: Invalid input created by random move within Monte Carlo");
-
     return Cell(x, y);
 }
 
 //region Heuristic Evaluation
-int MonteCarloPlayer::Evaluate(Board board)
+int MonteCarloPlayer::Evaluate(Board board, int x, int y)
 {
     int freeCount = board.freeCellsSize();
 
@@ -175,9 +172,9 @@ int MonteCarloPlayer::Evaluate(Board board)
     if ((freeCount + (bs * 2 - 1)) <= (bs * bs))
     {
         //Check both players for a winner, first checking for a line, then using DFS
-        if (board.CheckLine(player) || EvaluateDFS(player, board))
+        if (board.CheckForWin(player, x, y))
             return (player);
-        else if (board.CheckLine(opponent) || EvaluateDFS(opponent, board))
+        if (board.CheckForWin(opponent, x, y))
             return (opponent);
     }
 
@@ -185,56 +182,6 @@ int MonteCarloPlayer::Evaluate(Board board)
         return 0; //continue value
 
     return 5; //Error Check (shouldn't reach this point)
-}
-
-bool MonteCarloPlayer::EvaluateDFS(int playerType, Board board)
-{
-    stack<int> search;
-    vector<int> visited;
-    int bs = board.getBoardSize();
-
-    for (int i = 0; i < bs; i++)
-        for (int j = 0; j < bs; j++)
-            if (board.grid[i][j] == playerType)
-                search.push(board.grid[i][j]);
-
-    if (search.empty())
-        return false;
-
-    bool start = false, finish = false;
-    int startGoal = 0, endGoal = bs - 1;
-
-    while (!search.empty())
-    {
-        int s = search.top();
-        search.pop();
-        visited.push_back(s);
-
-        int sX = s / bs;
-        int sY = s % bs;
-
-        if (playerType == -1)
-        {
-            if (sY == startGoal)
-                start = true;
-            else if (sY == endGoal)
-                finish = true;
-        }
-        else if (playerType == 1)
-        {
-            if (sX == startGoal)
-                start = true;
-            else if (sX == endGoal)
-                finish = true;
-        }
-
-        if (start && finish)
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 //endregion
 
