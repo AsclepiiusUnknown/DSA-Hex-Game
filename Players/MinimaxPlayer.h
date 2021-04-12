@@ -1,6 +1,7 @@
 #include <random>
 #include "../Cell.h"
 #include "queue"
+#include <unistd.h>
 
 //region Definitions
 /*
@@ -17,24 +18,22 @@
 class MinimaxPlayer : public Player
 {
 public:
-    MinimaxPlayer(int t, string symbol = "Undefined (ERROR)", double depth = 12, string name = "Minimax") :
+    MinimaxPlayer(int t, string symbol = "Undefined (ERROR)", int depth = 2500, string name = "Minimax") :
             Player(t, symbol, name), maxDepth(depth)
     {
     }
 
-    const int MAX = 1000;
-    const int MIN = -1000;
-    const int WIN_VAL = 1000;
+    const int MAX = round_toward_infinity;
+    const int MIN = -round_toward_neg_infinity;
+    const double WIN_VAL = 2.5; //250/100 (2.5) because 225 is the largest possible depth that can be simulated since we cap bs at 15 (15^2)
 
     int bs;
-    double maxDepth;
+    int maxDepth = 2500;
 
     int player = type, opponent = type * -1;
 
     //region Functions
     bool GetMove(Board *, int &, int &);
-
-    int Evaluate(Board board, int x, int y);
 
     Move BestMove(Board *board);
 
@@ -70,9 +69,8 @@ bool MinimaxPlayer::GetMove(Board *board, int &x, int &y)
 //region Minimax Algorithm
 Move MinimaxPlayer::BestMove(Board *board)
 {
-    //todo random_shuffle(freeCells.begin(), freeCells.end());
-
     priority_queue<Move> moves;
+    cout << "Values of Moves: " << endl;
     for (int r = 0; r < bs; r++)
     {
         for (int c = 0; c < bs; c++)
@@ -96,10 +94,10 @@ Move MinimaxPlayer::BestMove(Board *board)
             if (tempBoard.CheckForWin(player, r, c)) //if the board is full
             {
                 printf("Winning move found!");
-                return {r, c, 0};
+                return {r, c, 1};
             }
 
-            double value = Minimax(tempBoard, maxDepth, false);
+            double value = Minimax(tempBoard, 0, false);
 
             Move m(r, c, value);
             moves.push(m);
@@ -110,82 +108,59 @@ Move MinimaxPlayer::BestMove(Board *board)
 
     if (!moves.empty())
     {
-        cout << moves.size() << "Best Value " << moves.top().v << " at (" << (moves.top().x + 1) << "," << (moves.top().y + 1) << ")" << endl;
+        cout << moves.size() << "Best Value " << moves.top().v << endl;
         return moves.top();
     }
 
     cout << "ERROR: No appropriate move was found by Minimax" << endl;
-    return Move(-1, -1, 0);
+    return {-1, -1, 0};
 }
 
 double MinimaxPlayer::Minimax(Board board, int depth, bool isMax)
 {
     vector<Cell> emptyCells = board.getFreeCells();
-    if (depth <= 0 || emptyCells.empty())
+    if (emptyCells.empty())
     {
-        return -0.01;
-        printf("not R??");
+        printf("FATAL ERROR: All cells used but no win was detected by Minimax!");
+        return (board.Evaluation(-1, -1, player, opponent)) - depth;
     }
 
-    random_shuffle(emptyCells.begin(), emptyCells.end());
-    double bestUtil = (isMax) ? MIN : MAX;
-    for (Cell i : emptyCells)
+    //random_shuffle(emptyCells.begin(), emptyCells.end());
+    double bestVal = (isMax) ? MIN : MAX;
+    int playerType = (isMax) ? player : opponent;
+
+    for (Cell i: emptyCells)
     {
-        int x = i.x, y = i.y;
         Board tempBoard(board);
-        if (isMax)
-        {
-            if (!tempBoard.AddTestMove(player, x, y)) //todo  opponent or dynamic player variable?
-                printf("ERROR: Invalid input created by Minimax's Max Move function\n");
-        }
-        else
-        {
-            if (!tempBoard.AddTestMove(opponent, x, y)) //todo  opponent or dynamic player variable?
-                printf("ERROR: Invalid input created by Minimax's Max Move function\n");
-        }
-        int status = Evaluate(board, 0, 0);
-        //If this player is winning
+        if (!tempBoard.AddTestMove(playerType, i.x, i.y))
+            printf("ERROR: Invalid input created by Minimax's Max Move function\n");
+
+        int status = tempBoard.Evaluation(i.x, i.y, player, opponent);
+
+        //If this player has won
         if (status == player)
         {
-            return (double) WIN_VAL - depth;
+            return WIN_VAL - depth;
         }
         else if (status == opponent)
         {
-            return (double) -WIN_VAL - depth;
+            return -WIN_VAL - depth;
         }
-        else if (status != 0) //Continue if we aren't finished and no winner
-            return 0.0;
-
-        double utility = Minimax(board, depth - 1, !isMax);
-
-        if ((isMax && utility > bestUtil) || (!isMax && utility < bestUtil))
+        else if (status != 0)
         {
-            bestUtil = utility;
+            cout << "ERROR: Invalid evaluation status found in Minimax. Free Cells: " << tempBoard.freeCellsSize() << " Can Win: " << tempBoard.CanWin() << " Status: " << status << endl;
+            return 0.0;
         }
+
+        double thisVal = Minimax(tempBoard, depth + 0.01, !isMax);
+
+        if ((isMax && thisVal > bestVal) || (!isMax && thisVal < bestVal))
+            bestVal = thisVal;
     }
-    return bestUtil;
-}
-//endregion
-
-//region Heuristic Evaluation
-int MinimaxPlayer::Evaluate(Board board, int x, int y)
-{
-    int freeCount = board.freeCellsSize();
-
-    //Only check for a win if enough cells have been occupied
-    if ((freeCount + (bs * 2 - 1)) <= (bs * bs))
-    {
-        //Check both players for a winner, first checking for a line, then using DFS
-        if (board.CheckForWin(player, x, y))
-            return (player);
-        if (board.CheckForWin(opponent, x, y))
-            return (opponent);
-    }
-
-    if (freeCount > 0)
-        return 0; //continue value
-
-    return 5; //Error Check (shouldn't reach this point)
+//    if ((bestVal == MAX || bestVal == MIN))
+//        printf("\nERROR: BestUtil was never changed so no value was given to the move.");
+    return bestVal;
 }
 //endregion
 #endif /* MINIMAX_H_ */
+// N 3 10 4 2 2

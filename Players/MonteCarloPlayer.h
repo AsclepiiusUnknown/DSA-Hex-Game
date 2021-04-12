@@ -31,10 +31,6 @@ public:
 
     double Expansion(int playerType, Board board, double depth);
 
-    int Evaluate(Board board, int x, int y);
-
-    bool EvaluateDFS(int playerType, Board board);
-
     Cell RandomMove(Board board);
 
     Move BestMove(Board *board);
@@ -130,21 +126,19 @@ double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
     if (!board.AddTestMove(playerType, c.x, c.y))
         printf("ERROR: Invalid input created by Monte-Carlo's Random Move function\n");
 
-    int status = Evaluate(board, c.x, c.y);
+    int status = board.Evaluation(c.x, c.y, player, opponent);
 
     if (status == player)
     {
-        //printf("WIN\n");
         return 1.0 - depth;
     }
     else if (status == opponent)
     {
-        //printf("LOSS\n");
-        return -1.0 + depth;
+        return -1.0 - depth;
     }
     else if (status != 0)
     {
-        //cout << "ERROR: Invalid evaluation status found in Monte Carlo" << endl;
+        cout << "ERROR: Invalid evaluation status found in Monte Carlo" << endl;
         return 0.0;
     }
 
@@ -162,27 +156,5 @@ Cell MonteCarloPlayer::RandomMove(Board board)
 
     return Cell(x, y);
 }
-
-//region Heuristic Evaluation
-int MonteCarloPlayer::Evaluate(Board board, int x, int y)
-{
-    int freeCount = board.freeCellsSize();
-
-    // Only check for a win if enough cells have been occupied
-    if ((freeCount + (bs * 2 - 1)) <= (bs * bs))
-    {
-        //Check both players for a winner, first checking for a line, then using DFS
-        if (board.CheckForWin(player, x, y))
-            return (player);
-        if (board.CheckForWin(opponent, x, y))
-            return (opponent);
-    }
-
-    if (freeCount > 0)
-        return 0; //continue value
-
-    return 5; //Error Check (shouldn't reach this point)
-}
-//endregion
 
 #endif /* MONTECARLOPLAYER_H_ */

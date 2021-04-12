@@ -151,7 +151,7 @@ Setup Human()
 
     //SECTION - Monte-Carlo AI Accuracy Input
     double accuracy = 2.5;
-    if (p2Type == 2)
+    if (p2Type == 2 || p2Type == 3)
     {
         cout << "How accurate do you want the AI to be? (Between 1 and 10)" << endl;
         cin >> accuracy;
@@ -212,7 +212,7 @@ Setup Human()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)");
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<int>(accuracy * 1000));
             break;
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -322,7 +322,7 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 1 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p1 = new MinimaxPlayer(-1, "Naughts (O)", (double) (accuracy1 * 10 / 2));
+            p1 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<int>(accuracy1 * 1000));
             break;
         }
         case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -353,7 +353,7 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", (double) (accuracy1 * 10 / 2));
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<int>(accuracy1 * 1000));
             break;
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards

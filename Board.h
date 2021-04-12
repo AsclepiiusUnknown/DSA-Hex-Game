@@ -138,6 +138,13 @@ public:
 
     bool CheckDFS(int playerType, int x, int y);
 
+    bool CanWin()
+    {
+        if ((freeCellsSize() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
+            return true;
+        return false;
+    }
+
     void PrintBoard();
 
     bool isBoardFull();
@@ -153,6 +160,8 @@ public:
     bool isInVector(vector<Cell> v, Cell e);
 
     bool AddTestMove(int playerIndex, int x, int y);
+
+    int Evaluation(int x, int y, int player, int opponent);
 };
 
 void Board::addCells()
@@ -415,9 +424,26 @@ bool Board::isFullThisTurn()
         return false;
 }
 
+int Board::Evaluation(int x, int y, int player, int opponent)
+{
+    if (CanWin())
+    {
+        //Check both players for a winner, first checking for a line, then using DFS
+        if (CheckForWin(player, x, y))
+            return (player);
+        if (CheckForWin(opponent, x, y))
+            return (opponent);
+    }
+
+    if (freeCellsSize() > 0)
+        return 0; //continue value
+
+    return 5; //Error Check (shouldn't reach this point)
+}
+
 bool Board::CheckForWin(int playerType, int x, int y)
 {
-    if ((emptyCells.size() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
+    if (CanWin())
     {
         if (CheckLine(playerType) || CheckDFS(playerType, x, y))
             return true;
@@ -465,26 +491,48 @@ bool Board::CheckLine(int playerType)
                 return true;
         }
 
+    int diagTally = 0;
     for (int i = 0; i < boardSize - 1; i++)
     {
         if (grid[i][boardSize - 1 - i] != grid[i + 1][boardSize - 2 - i] || grid[i][boardSize - 1 - i] != playerType)
         {
             return false;
         }
+        else
+            diagTally++;
     }
+    if (diagTally == boardSize)
+        return true;
 
-    return true;
+    return false;
 }
 
 bool Board::CheckDFS(int playerType, int x, int y) //DFS
 {
-    stack<Cell> search = CheckNeighbours(playerType, x, y);
-    vector<Cell> visited;
-    if (search.empty())
-        return false;
-
     bool start = false, finish = false;
     int startGoal = 0, endGoal = boardSize - 1;
+
+    stack<Cell> search;
+    vector<Cell> visited;
+
+    if (x < 0 && y < 0)
+    {
+        if (playerType == -1) // O
+            for (int r = 0; r < boardSize; r++)
+                search.push(Cell(r, 0));
+        else if (playerType == 1) // X
+            for (int r = 0; r < boardSize; r++)
+                search.push(Cell(0, r));
+        else
+            cout << " ERROR: Unknown type being searched in Board's CheckDFS" << endl;
+    }
+    else if (x >= 0 && y >= 0)
+        search = CheckNeighbours(playerType, x, y);
+    else
+        cout << " ERROR: CheckDFS in Board was told to check a coordinate with one negative value." << endl;
+
+    if (search.empty())
+        return false;
 
     while (!search.empty())
     {
@@ -492,19 +540,13 @@ bool Board::CheckDFS(int playerType, int x, int y) //DFS
         search.pop();
         visited.push_back(s);
 
-        if (playerType == -1)
+        if ((playerType == -1 && s.y == startGoal) || (playerType == 1 && s.x == startGoal))
         {
-            if (s.y == startGoal)
-                start = true;
-            else if (s.y == endGoal)
-                finish = true;
+            start = true;
         }
-        else if (playerType == 1)
+        else if ((playerType == -1 && s.y == endGoal) || (playerType == 1 && s.x == endGoal))
         {
-            if (s.x == startGoal)
-                start = true;
-            else if (s.x == endGoal)
-                finish = true;
+            finish = true;
         }
 
         if (start && finish)
