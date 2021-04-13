@@ -8,7 +8,6 @@
 #include "Players/MonteCarloPlayer.h"
 #include "Players/MinimaxPlayer.h"
 #include "Players/NegascoutPlayer.h"
-#include <windows.h>
 #include "chrono"
 
 using namespace std;
@@ -166,12 +165,12 @@ Setup Human()
     int boardSize = 5;
     if (p2Type == 3)
     {
-        cout << "Input the size of board: (NOTE: When using Minimax the only boards are 3 or 4)" << endl;
+        cout << "Input the size of board: (NOTE: When using Minimax the only boards are 3, 4, or 5)" << endl;
         cin >> boardSize;
         if (boardSize < 3)
             boardSize = 3;
-        else if (boardSize > 4)
-            boardSize = 4;
+        else if (boardSize > 5)
+            boardSize = 5;
         system("CLS");
     }
     else
@@ -212,7 +211,7 @@ Setup Human()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<int>(accuracy * 1000));
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (1.0 / boardSize));
             break;
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -283,13 +282,26 @@ Setup Simulation()
 
     //SECTION - Get input for the size of the board
     int boardSize = 10;
-    cout << "How big do you want the board? (NOTE: Minimum is 3, Maximum 15, but boards from 5-12 are best)" << endl;
-    cin >> boardSize;
-    if (boardSize < 3)
-        boardSize = 3;
-    else if (boardSize > 15)
-        boardSize = 15;
-    system("CLS");
+    if (p2Type == 3 || p1Type == 3)
+    {
+        cout << "Input the size of board: (NOTE: When using Minimax the only boards are 3, 4, or 5)" << endl;
+        cin >> boardSize;
+        if (boardSize < 3)
+            boardSize = 3;
+        else if (boardSize > 5)
+            boardSize = 5;
+        system("CLS");
+    }
+    else
+    {
+        cout << "How big do you want the board? (NOTE: Minimum is 3, Maximum 15, but boards from 5-12 are best)" << endl;
+        cin >> boardSize;
+        if (boardSize < 3)
+            boardSize = 3;
+        else if (boardSize > 15)
+            boardSize = 15;
+        system("CLS");
+    }
 
     //SECTION - Get No. of times to run the Simulation
     int times = 10;
@@ -322,7 +334,7 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 1 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p1 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<int>(accuracy1 * 1000));
+            p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (1.0 / boardSize));
             break;
         }
         case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -353,7 +365,7 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<int>(accuracy1 * 1000));
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy2) * (1.0 / boardSize) * (4 * 0.3));
             break;
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -394,11 +406,11 @@ void PrintResults(Stats stats)
     cout << setfill(' ') << fixed;
 
     cout << setw(colWidth) << "" << setw(colWidth);
-    SetConsoleTextAttribute(hConsole, 12);//RED
+    //SetConsoleTextAttribute(hConsole, 12);//RED
     cout << "X Results" << setw(colWidth);
-    SetConsoleTextAttribute(hConsole, 9);//BLUE
+    //SetConsoleTextAttribute(hConsole, 9);//BLUE
     cout << "O Results" << endl;
-    SetConsoleTextAttribute(hConsole, 15);//WHITE
+    //SetConsoleTextAttribute(hConsole, 15);//WHITE
 
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;

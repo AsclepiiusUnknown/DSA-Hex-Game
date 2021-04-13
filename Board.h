@@ -4,7 +4,7 @@
 #include<vector>
 #include<stack>
 #include<algorithm>
-#include <windows.h>
+//#include <windows.h>
 #include "Cell.h"
 
 using namespace std;
@@ -121,6 +121,9 @@ public:
     {
         return turn;
     }
+
+    int MoveNumber()
+    { return (((boardSize * boardSize) - freeCellsSize()) + 1); }
 
     bool setTurn(int playerType)
     {
@@ -243,6 +246,15 @@ bool Board::AddMove(int playerIndex, int x, int y)
     grid[x][y] = playerIndex;
     removeFreeCell(x, y);
 
+    stack<Cell> neighbours = CheckNeighbours(playerIndex, x, y);
+    if (!neighbours.empty())
+    {
+        cout << ", which connects to: ";
+        PrintNeighbours(neighbours);
+    }
+    else
+        cout << endl;
+
     turn = -1 * turn;
     return true;
 }
@@ -263,7 +275,7 @@ bool Board::AddTestMove(int playerIndex, int x, int y)
 
 void Board::PrintBoard()
 {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     cout << endl;
 
@@ -275,9 +287,9 @@ void Board::PrintBoard()
         {
             cout << "_";
         }
-        SetConsoleTextAttribute(hConsole, 12);//RED
+        //SetConsoleTextAttribute(hConsole, 12);//RED
         cout << j + 1;
-        SetConsoleTextAttribute(hConsole, 15);//WHITE
+        //SetConsoleTextAttribute(hConsole, 15);//WHITE
         cout << "_.";
     }
     cout << endl;
@@ -292,9 +304,9 @@ void Board::PrintBoard()
         //SECTION - Left numbers ())
         if (i < 9)
             cout << " ";
-        SetConsoleTextAttribute(hConsole, 9);//BLUE
+        //SetConsoleTextAttribute(hConsole, 9);//BLUE
         cout << i + 1;
-        SetConsoleTextAttribute(hConsole, 15);//WHITE
+        //SetConsoleTextAttribute(hConsole, 15);//WHITE
         cout << " ";
 
         //SECTION - Loop through all cells
@@ -319,18 +331,18 @@ void Board::PrintBoard()
                 if (j == 0)
                 {
                     cout << "|_";
-                    SetConsoleTextAttribute(hConsole, 12);//RED
+                    //SetConsoleTextAttribute(hConsole, 12);//RED
                     cout << "X";
-                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    //SetConsoleTextAttribute(hConsole, 15);//WHITE
                     cout << "_|";
                 }
                     //All other Cells
                 else
                 {
                     cout << "_";
-                    SetConsoleTextAttribute(hConsole, 12);//RED
+                    //SetConsoleTextAttribute(hConsole, 12);//RED
                     cout << "X";
-                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    //SetConsoleTextAttribute(hConsole, 15);//WHITE
                     cout << "_|";
                 }
             }
@@ -341,18 +353,18 @@ void Board::PrintBoard()
                 if (j == 0)
                 {
                     cout << "|_";
-                    SetConsoleTextAttribute(hConsole, 9);//BLUE
+                    //SetConsoleTextAttribute(hConsole, 9);//BLUE
                     cout << "O";
-                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    //SetConsoleTextAttribute(hConsole, 15);//WHITE
                     cout << "_|";
                 }
                     //All other Cells
                 else
                 {
                     cout << "_";
-                    SetConsoleTextAttribute(hConsole, 9);//BLUE
+                    //SetConsoleTextAttribute(hConsole, 9);//BLUE
                     cout << "O";
-                    SetConsoleTextAttribute(hConsole, 15);//WHITE
+                    //SetConsoleTextAttribute(hConsole, 15);//WHITE
                     cout << "_|";
                 }
             }
@@ -362,16 +374,16 @@ void Board::PrintBoard()
         if (i < boardSize - 1)
         {
             cout << "_";
-            SetConsoleTextAttribute(hConsole, 9);//BLUE
+            //SetConsoleTextAttribute(hConsole, 9);//BLUE
             cout << i + 1;
-            SetConsoleTextAttribute(hConsole, 15);//WHITE
+            //SetConsoleTextAttribute(hConsole, 15);//WHITE
         }
         else
         {
             cout << " ";
-            SetConsoleTextAttribute(hConsole, 9);//BLUE
+            //SetConsoleTextAttribute(hConsole, 9);//BLUE
             cout << i + 1;
-            SetConsoleTextAttribute(hConsole, 15);//WHITE
+            //SetConsoleTextAttribute(hConsole, 15);//WHITE
         }
         cout << endl;
     }
@@ -386,9 +398,9 @@ void Board::PrintBoard()
         {
             cout << " ";
         }
-        SetConsoleTextAttribute(hConsole, 12);//RED
+        //SetConsoleTextAttribute(hConsole, 12);//RED
         cout << e + 1;
-        SetConsoleTextAttribute(hConsole, 15);//WHITE
+        //SetConsoleTextAttribute(hConsole, 15);//WHITE
         cout << "  ";
     }
     cout << endl;
@@ -438,7 +450,7 @@ int Board::Evaluation(int x, int y, int player, int opponent)
     if (freeCellsSize() > 0)
         return 0; //continue value
 
-    return 5; //Error Check (shouldn't reach this point)
+    return -5; //Error Check (shouldn't reach this point)
 }
 
 bool Board::CheckForWin(int playerType, int x, int y)
@@ -633,7 +645,7 @@ void Board::PrintNeighbours(stack<Cell> s)
 
     PrintNeighbours(s);
 
-    printCoord(s.top().x + 1, s.top().y + 1, false);
+    printCoord(t.x + 1, t.y + 1, false);
     cout << ", ";
 }
 

@@ -76,7 +76,7 @@ Move MonteCarloPlayer::BestMove(Board *board)
             }
             else if (board->grid[r][c] == -1)
             {
-                cout << setw(8) << "O" << endl;
+                cout << setw(12) << "O" << endl;
                 continue;
             }
 
@@ -85,7 +85,7 @@ Move MonteCarloPlayer::BestMove(Board *board)
 
             if (tempBoard.CheckForWin(player, r, c))
             {
-                printf("Winning move found!");
+                cout << setw(12) << "Winning Move Found!" << endl;
                 return {r, c, 1};
             }
 
@@ -93,7 +93,7 @@ Move MonteCarloPlayer::BestMove(Board *board)
 
             Move m(r, c, value);
             moves.push(m);
-            cout << setw(8) << value << endl;
+            cout << setw(12) << value << endl;
         }
         cout << endl;
     }
