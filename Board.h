@@ -1,22 +1,13 @@
 #ifndef BOARD_H_
 #define BOARD_H_
 
-#include<vector>
-#include<stack>
-#include<algorithm>
-//#include <windows.h>
-#include "Cell.h"
-
-using namespace std;
-
-
 class Board
 {
 private:
     int boardSize;
     int turn;
-    vector<Cell> emptyCells;
-    vector<Cell> allCells;
+    vector <Cell> emptyCells;
+    vector <Cell> allCells;
 public:
     Board(int bs)
     {
@@ -70,10 +61,10 @@ public:
     //region Spots
     void addCells();
 
-    void PrintCells(vector<Cell> cells);
+    void PrintCells(vector <Cell> cells);
 
     //region Free Spots
-    vector<Cell> getFreeCells()
+    vector <Cell> getFreeCells()
     {
         return emptyCells;
     }
@@ -87,7 +78,7 @@ public:
     //endregion
 
     //region All Spots
-    vector<Cell> getAllCells()
+    vector <Cell> getAllCells()
     {
         return allCells;
     }
@@ -154,13 +145,13 @@ public:
 
     bool isFullThisTurn();
 
-    stack<Cell> CheckNeighbours(int player, int x, int y);
+    stack <Cell> CheckNeighbours(int player, int x, int y);
 
-    void PrintNeighbours(stack<Cell> s);
+    void PrintNeighbours(stack <Cell> s);
 
     void printCoord(int x, int y, bool el);
 
-    bool isInVector(vector<Cell> v, Cell e);
+    bool isInVector(vector <Cell> v, Cell e);
 
     bool AddTestMove(int playerIndex, int x, int y);
 
@@ -178,7 +169,7 @@ void Board::addCells()
         }
 }
 
-void Board::PrintCells(vector<Cell> cells)
+void Board::PrintCells(vector <Cell> cells)
 {
     int x, y;
     int tally = 0;
@@ -216,7 +207,7 @@ bool Board::validInput(int x, int y)
 {
     if (x < 0 || y < 0 || x >= boardSize || y >= boardSize)
     {
-        cout << "Invalid Move. Node (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
+        cout << "Invalid Move. ASCell (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
         return false;
     }
 
@@ -246,7 +237,7 @@ bool Board::AddMove(int playerIndex, int x, int y)
     grid[x][y] = playerIndex;
     removeFreeCell(x, y);
 
-    stack<Cell> neighbours = CheckNeighbours(playerIndex, x, y);
+    stack <Cell> neighbours = CheckNeighbours(playerIndex, x, y);
     if (!neighbours.empty())
     {
         cout << ", which connects to: ";
@@ -524,17 +515,20 @@ bool Board::CheckDFS(int playerType, int x, int y) //DFS
     bool start = false, finish = false;
     int startGoal = 0, endGoal = boardSize - 1;
 
-    stack<Cell> search;
-    vector<Cell> visited;
+    stack <Cell> search;
+    vector <Cell> visited;
 
-    if (x < 0 && y < 0)
+    if (x == -1 && y == -1)
     {
-        if (playerType == -1) // O
-            for (int r = 0; r < boardSize; r++)
-                search.push(Cell(r, 0));
-        else if (playerType == 1) // X
-            for (int r = 0; r < boardSize; r++)
-                search.push(Cell(0, r));
+        if (playerType == 1 || playerType == -1)
+        {
+            for (int i = 0; i < boardSize; i++)
+                if (playerType == -1) // O
+
+                    search.push(Cell(i, 0));
+                else // X
+                    search.push(Cell(0, i));
+        }
         else
             cout << " ERROR: Unknown type being searched in Board's CheckDFS" << endl;
     }
@@ -567,7 +561,7 @@ bool Board::CheckDFS(int playerType, int x, int y) //DFS
         }
         else
         {
-            stack<Cell> children = CheckNeighbours(playerType, s.x, s.y);
+            stack <Cell> children = CheckNeighbours(playerType, s.x, s.y);
             while (!children.empty())
             {
                 if (!isInVector(visited, children.top()))
@@ -579,9 +573,9 @@ bool Board::CheckDFS(int playerType, int x, int y) //DFS
     return false;
 }
 
-stack<Cell> Board::CheckNeighbours(int player, int x, int y)
+stack <Cell> Board::CheckNeighbours(int player, int x, int y)
 {
-    stack<Cell> neighbours;
+    stack <Cell> neighbours;
     Cell value(0, 0);
 
     //Left
@@ -635,7 +629,7 @@ stack<Cell> Board::CheckNeighbours(int player, int x, int y)
     return neighbours;
 }
 
-void Board::PrintNeighbours(stack<Cell> s)
+void Board::PrintNeighbours(stack <Cell> s)
 {
     if (s.empty())
         return;
@@ -649,7 +643,7 @@ void Board::PrintNeighbours(stack<Cell> s)
     cout << ", ";
 }
 
-bool Board::isInVector(vector<Cell> v, Cell e)
+bool Board::isInVector(vector <Cell> v, Cell e)
 {
     if (v.empty())
         return false;

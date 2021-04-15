@@ -1,16 +1,29 @@
-#include<iostream>
-#include "vector"
-#include "Board.h"
-#include "Players/Player.h"
-#include "Players/HumanPlayer.h"
-#include "HexGame.h"
-#include "Players/RandomPlayer.h"
-#include "Players/MonteCarloPlayer.h"
-#include "Players/MinimaxPlayer.h"
-#include "Players/NegascoutPlayer.h"
-#include "chrono"
-
+//region References
 using namespace std;
+
+#include "chrono"
+#include <cstdlib>
+#include <iostream>
+#include <queue>
+#include <iomanip>
+#include <string>
+#include "vector"
+#include "time.h"
+#include<random>
+#include<stack>
+#include<algorithm>
+
+#include "Cell.h"
+#include "Board.h"
+#include "HexGame.h"
+
+#include "Players/Player.h"
+#include "Players/AStarPlayer.h"
+#include "Players/HumanPlayer.h"
+#include "Players/RandomPlayer.h"
+#include "Players/MinimaxPlayer.h"
+#include "Players/MonteCarloPlayer.h"
+//endregion
 
 struct Setup
 {
@@ -216,7 +229,7 @@ Setup Human()
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
         {
-            p2 = new NegascoutPlayer(-1, "Naughts (O)");
+            p2 = new AStarPlayer(-1, "Naughts (O)");
             break;
         }
 
@@ -339,7 +352,7 @@ Setup Simulation()
         }
         case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
         {
-            p1 = new NegascoutPlayer(1, "Crosses (X)");
+            p1 = new AStarPlayer(1, "Crosses (X)");
             break;
         }
 
@@ -370,7 +383,7 @@ Setup Simulation()
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
         {
-            p2 = new NegascoutPlayer(-1, "Naughts (O)");
+            p2 = new AStarPlayer(-1, "Naughts (O)");
             break;
         }
 
@@ -397,7 +410,7 @@ Setup Simulation()
 void PrintResults(Stats stats)
 {
     //region Setup
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     double n = 1;
     int colWidth = 20;

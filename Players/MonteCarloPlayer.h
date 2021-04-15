@@ -1,17 +1,6 @@
 #ifndef MONTECARLOPLAYER_H_
 #define MONTECARLOPLAYER_H_
 
-#include <ctime>
-#include <cstdlib>
-#include <iostream>
-#include <queue>
-#include <iomanip>
-#include <string>
-#include "vector"
-#include "queue"
-#include "time.h"
-#include "../Cell.h"
-
 using namespace std;
 
 class MonteCarloPlayer : public Player
@@ -61,7 +50,7 @@ bool MonteCarloPlayer::GetMove(Board *board, int &x, int &y)
 
 Move MonteCarloPlayer::BestMove(Board *board)
 {
-    priority_queue<Move> moves;
+    priority_queue <Move> moves;
     cout << "Values of Moves: " << endl;
     for (int r = 0; r < bs; r++)
     {

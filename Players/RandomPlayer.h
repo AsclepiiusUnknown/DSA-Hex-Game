@@ -1,11 +1,6 @@
 #ifndef RANDOMPLAYER_H_
 #define RANDOMPLAYER_H_
 
-#include<time.h>
-#include<random>
-#include<vector>
-#include "../Cell.h"
-
 using namespace std;
 
 class RandomPlayer : public Player
