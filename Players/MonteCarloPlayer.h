@@ -50,7 +50,7 @@ bool MonteCarloPlayer::GetMove(Board *board, int &x, int &y)
 
 Move MonteCarloPlayer::BestMove(Board *board)
 {
-    priority_queue <Move> moves;
+    priority_queue<Move> moves;
     cout << "Values of Moves: " << endl;
     for (int r = 0; r < bs; r++)
     {
@@ -72,7 +72,7 @@ Move MonteCarloPlayer::BestMove(Board *board)
             Board tempBoard(*board);
             tempBoard.AddTestMove(player, r, c);
 
-            if (tempBoard.CheckForWin(player, r, c))
+            if (tempBoard.CheckForWin(player))
             {
                 cout << setw(12) << "Winning Move Found!" << endl;
                 return {r, c, 1};
@@ -115,7 +115,7 @@ double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
     if (!board.AddTestMove(playerType, c.x, c.y))
         printf("ERROR: Invalid input created by Monte-Carlo's Random Move function\n");
 
-    int status = board.Evaluation(c.x, c.y, player, opponent);
+    int status = board.Evaluation(player, opponent);
 
     if (status == player)
     {

@@ -1,31 +1,31 @@
 #ifndef ASTAR_H
 #define ASTAR_H
 
-static class AStar
+class AStar
 {
 public:
-    stack<ASCell> EvaluateAStar(Board board, int player, Cell _src)
+    stack <ASCell> EvaluateAStar(Board board, int player, Cell _src)
     {
-        printf("\nEvaluateAStar Start\n");
+//        printf("\nEvaluateAStar Start\n");
         ASCell src(_src.x, _src.y);
         if (player != -1 && player != 1)
         {
             printf("\nERROR: No player recognised by AStar's Best Move.\n");
             return {};
         }
-        printf("\nEvaluateAStar End\n");
+//        printf("\nEvaluateAStar End\n");
 
         return EvaluateCell(board, player, src);
     }
 
     int CheckPreowned(Board board, int player, ASCell src, bool &start, bool &finish)
     {
-        printf("\nCheckPreowned Start\n");
+//        printf("\nCheckPreowned Start\n");
 
         int leftTop = 0, rightBottom = board.getBoardSize() - 1;
 
-        stack<Cell> preOpen = board.CheckNeighbours(player, src.x, src.y);
-        vector<Cell> preClosed;
+        stack <Cell> preOpen = board.CheckNeighbours(player, src.x, src.y);
+        vector <Cell> preClosed;
         while (!preOpen.empty())
         {
             Cell c = preOpen.top();
@@ -51,7 +51,7 @@ public:
             }
             else
             {
-                stack<Cell> n = board.CheckNeighbours(player, c.x, c.y); //Get empty neighbours
+                stack <Cell> n = board.CheckNeighbours(player, c.x, c.y); //Get empty neighbours
                 while (!n.empty())
                 {
                     if (!board.isInVector(preClosed, n.top()))
@@ -60,13 +60,13 @@ public:
                 }
             }
         }
-        printf("\nCheckPreowned End\n");
+//        printf("\nCheckPreowned End\n");
         return 0;
     }
 
-    stack<ASCell> EvaluateCell(Board board, int player, ASCell src)
+    stack <ASCell> EvaluateCell(Board board, int player, ASCell src)
     {
-        printf("\nEvaluateCell Start\n");
+//        printf("\nEvaluateCell Start\n");
 
         int bs = board.getBoardSize();
         bool start = false, finish = false;
@@ -74,19 +74,21 @@ public:
 
         if (CheckPreowned(board, player, src, start, finish) == 1)
         {
-            stack<ASCell> pre;
+            stack <ASCell> pre;
             pre.push(ASCell(src.x, src.y));
             return pre;
         }
 
-        priority_queue<ASCell, vector<ASCell>, greater<ASCell>> open;
-        vector<ASCell> closed;
-        stack<Cell> tempN = board.CheckNeighbours(0, src.x, src.y);
+        priority_queue <ASCell, vector<ASCell>, greater<ASCell>> open;
+        vector <ASCell> closed;
+        stack <ASCell> tempN = CheckNeighbours(board, 0, src.x, src.y);
+//        cout << "Neighbours SIZE: " << tempN.size() << endl;
         while (!tempN.empty())
         {
             open.push(ASCell(tempN.top().x, tempN.top().y));
             tempN.pop();
         }
+//        cout << "Open SIZE: " << open.size() << endl;
 
         if (open.empty())
         {
@@ -97,10 +99,14 @@ public:
 
         while (!open.empty())
         {
+//            printf("\nMARK 1\n");
             //c = best open cell
             ASCell c = open.top();
             open.pop();
+//            cout << "New Open SIZE: " << open.size() << endl;
             closed.push_back(c);
+
+//            printf("\nMARK 2\n");
 
             //if c == goal
             switch (player)
@@ -114,6 +120,7 @@ public:
                     finish = (finish) ? finish : (c.x == rightBottom);
                     break;
             }
+            printf("\nMARK 3\n");
 
             if (start && finish)
             {
@@ -121,13 +128,14 @@ public:
             }
             else
             {
-                stack<Cell> n = board.CheckNeighbours(0, c.x, c.y); //Get empty neighbours
+                stack <ASCell> n = CheckNeighbours(board, player, c.x, c.y); //Get empty neighbours
+                cout << "Current's Neighbours SIZE: " << open.size() << endl;
                 while (!n.empty())
                 {
+                    printf("\nMARK 4\n");
                     if (!isInVector(closed, ASCell(n.top().x, n.top().y)))
                     {
-                        ASCell thisN(n.top().x, n.top().y);
-                        thisN.SetParent(&c);
+                        n.top().SetParent(&c);
                         double g, h;
                         g = c.G() + 1.0;
                         h = 0.0;
@@ -135,20 +143,20 @@ public:
                         {
                             case -1:
                                 if (!start)
-                                    h += abs(thisN.y);
+                                    h += abs(n.top().y);
                                 if (!finish)
-                                    h += abs(bs - thisN.y);
+                                    h += abs(bs - n.top().y);
                                 break;
                             case 1:
                                 if (!start)
-                                    h += thisN.x;
+                                    h += n.top().x;
                                 if (!finish)
-                                    h += bs - thisN.x;
+                                    h += bs - n.top().x;
                                 break;
                         }
-                        thisN.SetValues(g, h);
+                        n.top().SetValues(g, h);
 
-                        open.push(ASCell(n.top().x, n.top().y));
+                        open.push(n.top());
                     }
                     n.pop();
                 }
@@ -159,9 +167,9 @@ public:
         return {};
     }
 
-    stack<ASCell> ReconstructPath(int failSafe, ASCell src, ASCell current)
+    stack <ASCell> ReconstructPath(int failSafe, ASCell src, ASCell current)
     {
-        stack<ASCell> path;
+        stack <ASCell> path;
         ASCell next = current;
         while (failSafe > 0)
         {
@@ -176,7 +184,7 @@ public:
         return path;
     }
 
-    bool isInVector(vector<ASCell> s, ASCell e)
+    bool isInVector(vector <ASCell> s, ASCell e)
     {
         if (s.empty())
             return false;
@@ -187,6 +195,72 @@ public:
 
         return false;
     }
+
+    stack <ASCell> CheckNeighbours(Board board, int target, int x, int y);
 };
+
+
+stack <ASCell> AStar::CheckNeighbours(Board board, int target, int x, int y)
+{
+    stack <ASCell> neighbours;
+    int **grid = board.getGrid();
+    int bs = board.getBoardSize();
+
+    //Left
+    if ((y - 1) >= 0)
+    {
+        if (grid[x][y - 1] == target || grid[x][y - 1] == 0)
+        {
+            neighbours.push(ASCell(x, y - 1));
+        }
+    }
+
+    //Right
+    if ((y + 1) < bs)
+    {
+        if (grid[x][y + 1] == target || grid[x][y + 1] == 0)
+        {
+            neighbours.push(ASCell(x, y + 1));
+        }
+    }
+
+    //Up-Left
+    if ((x - 1) >= 0)
+    {
+        if (grid[x - 1][y] == target || grid[x - 1][y] == 0)
+        {
+            neighbours.push(ASCell(x - 1, y));
+        }
+    }
+
+    //Up-Right
+    if ((x - 1) >= 0 && (y + 1) < bs)
+    {
+        if (grid[x - 1][y + 1] == target || grid[x - 1][y + 1] == 0)
+        {
+            neighbours.push(ASCell(x - 1, y + 1));
+        }
+    }
+
+    //Down-Left
+    if ((x + 1) < bs && (y - 1) >= 0)
+    {
+        if (grid[x + 1][y - 1] == target || grid[x + 1][y - 1] == 0)
+        {
+            neighbours.push(ASCell(x + 1, y - 1));
+        }
+    }
+
+    //Down-Right
+    if ((x + 1) < bs)
+    {
+        if (grid[x + 1][y] == target || grid[x + 1][y] == 0)
+        {
+            neighbours.push(ASCell(x + 1, y));
+        }
+    }
+
+    return neighbours;
+}
 
 #endif //ASTAR_H

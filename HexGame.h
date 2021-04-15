@@ -57,7 +57,7 @@ int HexGame::play(bool showAll, int startPlayer)
             return 0;
 
         board->PrintBoard(); //Print the new board (old board + this move)
-        won = board->CheckForWin(playerType, x, y); //Check to see if this player has just won. If so, end the game and tell the players
+        won = board->CheckForWin(playerType); //Check to see if this player has just won. If so, end the game and tell the players
         if (won)
         {
             cout << player[playerIndex]->getPlayerName() << " player wins!" << endl;

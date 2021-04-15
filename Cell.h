@@ -7,7 +7,6 @@ struct Cell
 
     Cell(int _x, int _y) : x(_x), y(_y)
     {}
-
 };
 
 struct Move
@@ -22,6 +21,36 @@ struct Move
     {
         return v < m.v;
     };
+};
+
+class PathCell
+{
+public:
+    int x, y;
+    int length = 0, h = 0;
+    PathCell *parent = NULL;
+    vector <PathCell> visited;
+
+    double GetValue()
+    { return (h - (length / 3)); }
+
+    bool Compare(PathCell other)
+    {
+//        printf("\nC 1\n");
+        if (x == other.x && y == other.y && parent == other.parent && GetValue() == other.GetValue())
+        {
+//            printf("\nC 2\n");
+            return true;
+        }
+//        printf("\nC 3\n");
+        return false;
+    }
+
+    PathCell(int _x, int _y, PathCell *_parent) : x(_x), y(_y), parent(_parent)
+    {}
+
+    PathCell(int _x, int _y, PathCell *_p, int _h, int _l, vector <PathCell> _v) : x(_x), y(_y), parent(_p), h(_h), length(_l), visited(_v)
+    {}
 };
 
 class ASCell //For use in AStar

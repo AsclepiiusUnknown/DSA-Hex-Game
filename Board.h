@@ -126,11 +126,11 @@ public:
 
     bool AddMove(int playerIndex, int x, int y);
 
-    bool CheckForWin(int playerType, int x, int y);
+    bool CheckForWin(int playerType);
 
     bool CheckLine(int playerType);
 
-    bool CheckDFS(int playerType, int x, int y);
+    bool CheckDFS(int playerType);
 
     bool CanWin()
     {
@@ -145,7 +145,7 @@ public:
 
     bool isFullThisTurn();
 
-    stack <Cell> CheckNeighbours(int player, int x, int y);
+    stack <Cell> CheckNeighbours(int target, int x, int y);
 
     void PrintNeighbours(stack <Cell> s);
 
@@ -155,7 +155,9 @@ public:
 
     bool AddTestMove(int playerIndex, int x, int y);
 
-    int Evaluation(int x, int y, int player, int opponent);
+    int Evaluation(int player, int opponent);
+
+    bool isInVector(vector <PathCell> v, PathCell e);
 };
 
 void Board::addCells()
@@ -427,14 +429,14 @@ bool Board::isFullThisTurn()
         return false;
 }
 
-int Board::Evaluation(int x, int y, int player, int opponent)
+int Board::Evaluation(int player, int opponent)
 {
     if (CanWin())
     {
         //Check both players for a winner, first checking for a line, then using DFS
-        if (CheckForWin(player, x, y))
+        if (CheckForWin(player))
             return (player);
-        if (CheckForWin(opponent, x, y))
+        if (CheckForWin(opponent))
             return (opponent);
     }
 
@@ -444,11 +446,11 @@ int Board::Evaluation(int x, int y, int player, int opponent)
     return -5; //Error Check (shouldn't reach this point)
 }
 
-bool Board::CheckForWin(int playerType, int x, int y)
+bool Board::CheckForWin(int playerType)
 {
     if (CanWin())
     {
-        if (CheckLine(playerType) || CheckDFS(playerType, x, y))
+        if (CheckLine(playerType) || CheckDFS(playerType))
             return true;
     }
     return false;
@@ -510,7 +512,7 @@ bool Board::CheckLine(int playerType)
     return false;
 }
 
-bool Board::CheckDFS(int playerType, int x, int y) //DFS
+bool Board::CheckDFS(int playerType) //DFS
 {
     bool start = false, finish = false;
     int startGoal = 0, endGoal = boardSize - 1;
@@ -518,24 +520,14 @@ bool Board::CheckDFS(int playerType, int x, int y) //DFS
     stack <Cell> search;
     vector <Cell> visited;
 
-    if (x == -1 && y == -1)
-    {
-        if (playerType == 1 || playerType == -1)
-        {
-            for (int i = 0; i < boardSize; i++)
-                if (playerType == -1) // O
 
-                    search.push(Cell(i, 0));
-                else // X
-                    search.push(Cell(0, i));
-        }
-        else
-            cout << " ERROR: Unknown type being searched in Board's CheckDFS" << endl;
+    for (int i = 0; i < boardSize; i++)
+    {
+        if (playerType == -1 && grid[i][0] == playerType) // O
+            search.push(Cell(i, 0));
+        else if (playerType == 1 && grid[0][i] == playerType) // X
+            search.push(Cell(0, i));
     }
-    else if (x >= 0 && y >= 0)
-        search = CheckNeighbours(playerType, x, y);
-    else
-        cout << " ERROR: CheckDFS in Board was told to check a coordinate with one negative value." << endl;
 
     if (search.empty())
         return false;
@@ -573,58 +565,76 @@ bool Board::CheckDFS(int playerType, int x, int y) //DFS
     return false;
 }
 
-stack <Cell> Board::CheckNeighbours(int player, int x, int y)
+stack <Cell> Board::CheckNeighbours(int target, int x, int y)
 {
     stack <Cell> neighbours;
-    Cell value(0, 0);
 
     //Left
     if ((y - 1) >= 0)
-        if (grid[x][y - 1] == player)
+    {
+//        if (target == 0)
+//            cout << "LEFT: " << grid[x][y - 1] << endl;
+        if (grid[x][y - 1] == target)
         {
-            value.x = x, value.y = y - 1;
-            neighbours.push(value);
+
+            neighbours.push(Cell(x, y - 1));
         }
+    }
 
     //Right
     if ((y + 1) < boardSize)
-        if (grid[x][y + 1] == player)
+    {
+//        if (target == 0)
+//            cout << "RIGHT: " << grid[x][y + 1] << endl;
+        if (grid[x][y + 1] == target)
         {
-            value.x = x, value.y = y + 1;
-            neighbours.push(value);
+            neighbours.push(Cell(x, y + 1));
         }
+    }
 
     //Up-Left
     if ((x - 1) >= 0)
-        if (grid[x - 1][y] == player)
+    {
+//        if (target == 0)
+//            cout << "UP LEFT: " << grid[x - 1][y] << endl;
+        if (grid[x - 1][y] == target)
         {
-            value.x = x - 1, value.y = y;
-            neighbours.push(value);
+            neighbours.push(Cell(x - 1, y));
         }
+    }
 
     //Up-Right
     if ((x - 1) >= 0 && (y + 1) < boardSize)
-        if (grid[x - 1][y + 1] == player)
+    {
+//        if (target == 0)
+//            cout << "UP RIGHT: " << grid[x - 1][y + 1] << endl;
+        if (grid[x - 1][y + 1] == target)
         {
-            value.x = x - 1, value.y = y + 1;
-            neighbours.push(value);
+            neighbours.push(Cell(x - 1, y + 1));
         }
+    }
 
     //Down-Left
     if ((x + 1) < boardSize && (y - 1) >= 0)
-        if (grid[x + 1][y - 1] == player)
+    {
+//        if (target == 0)
+//            cout << "DOWN LEFT: " << grid[x + 1][y - 1] << endl;
+        if (grid[x + 1][y - 1] == target)
         {
-            value.x = x + 1, value.y = y - 1;
-            neighbours.push(value);
+            neighbours.push(Cell(x + 1, y - 1));
         }
+    }
 
     //Down-Right
     if ((x + 1) < boardSize)
-        if (grid[x + 1][y] == player)
+    {
+//        if (target == 0)
+//            cout << "DOWN RIGHT: " << grid[x + 1][y] << endl;
+        if (grid[x + 1][y] == target)
         {
-            value.x = x + 1, value.y = y;
-            neighbours.push(value);
+            neighbours.push(Cell(x + 1, y));
         }
+    }
 
     return neighbours;
 }
@@ -649,6 +659,18 @@ bool Board::isInVector(vector <Cell> v, Cell e)
         return false;
 
     for (Cell i : v)
+        if (i.x == e.x && i.y == e.y)
+            return true;
+
+    return false;
+}
+
+bool Board::isInVector(vector <PathCell> v, PathCell e)
+{
+    if (v.empty())
+        return false;
+
+    for (PathCell i : v)
         if (i.x == e.x && i.y == e.y)
             return true;
 

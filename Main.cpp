@@ -15,13 +15,12 @@ using namespace std;
 
 #include "Cell.h"
 #include "Board.h"
-#include "HexGame.h"
-
 #include "Players/Player.h"
+#include "HexGame.h"
+#include "Players/MinimaxPlayer.h"
 #include "Players/AStarPlayer.h"
 #include "Players/HumanPlayer.h"
 #include "Players/RandomPlayer.h"
-#include "Players/MinimaxPlayer.h"
 #include "Players/MonteCarloPlayer.h"
 //endregion
 
@@ -224,7 +223,7 @@ Setup Human()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (1.0 / boardSize));
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (0.15 * boardSize));
             break;
         }
         case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
@@ -347,7 +346,7 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 1 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (1.0 / boardSize));
+            p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (0.15 * boardSize));
             break;
         }
         case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
