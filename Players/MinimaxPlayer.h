@@ -114,7 +114,7 @@ Move MinimaxPlayer::BestMove(Board *board)
             }
             printf("\nBEFORE\n");
             double value = Minimax(tempBoard, 0, false, MIN, MAX);
-            
+            printf("\nAFTER""""""\n");
             Move m(r, c, value);
             moves.push(m);
             cout << setw(12) << value << endl;
@@ -147,12 +147,10 @@ double MinimaxPlayer::Minimax(Board board, double depth, bool isMax, double A, d
         //cout << cut.x << " " << cut.y << endl;
         if (cut.x != 0 && cut.y != 0)
         {
-            printf("\nAFTER*****************\n");
             return static_cast<double>(cut.GetValue());
         }
         else
         {
-            printf("\nAFTER*****************\n");
             return -bs;
         }
     }
