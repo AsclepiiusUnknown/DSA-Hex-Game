@@ -1,45 +1,7 @@
 #ifndef MINIMAX_H_
 #define MINIMAX_H_
 
-class MinimaxPlayer : public Player
-{
-public:
-    MinimaxPlayer(int t, string symbol = "Undefined (ERROR)", double depth = 25, string name = "Minimax") : Player(t, symbol, name), maxDepth(depth)
-    {}
-
-    const int MAX = 10000;
-    const int MIN = -10000;
-    int WIN_VAL = 10;
-
-    int bs;
-    double maxDepth = 25;
-    bool canCutoff = true;
-
-    int player = type, opponent = type * -1;
-
-    bool GetMove(Board *, int &, int &);
-
-    Move BestMove(Board *board);
-
-    double Minimax(Board board, double depth, bool isMax, double A, double B);
-
-    bool DepthCutoff(double depth)
-    {
-        if (canCutoff && depth >= maxDepth && depth > (0.1 * bs))
-        {
-            return true;
-        }
-        else return false;
-    }
-
-    //region Evaluation
-    PathCell PathEvaluation(Board board);
-
-    PathCell MakePath(Board board, PathCell src);
-
-    stack <PathCell> ReconstructPath(PathCell src, PathCell final);
-    //endregion
-};
+#include "MinimaxPlayer.h"
 
 bool MinimaxPlayer::GetMove(Board *board, int &x, int &y)
 {
@@ -49,13 +11,9 @@ bool MinimaxPlayer::GetMove(Board *board, int &x, int &y)
         return false;
     }
 
-    //Setup the global bs (board size) variable
     bs = board->GetBoardSize();
     WIN_VAL = bs + 2;
-
-    cout << " Max Depth: " << maxDepth << endl;
-    cout << " Depth Increment: " << 0.01 * bs << endl;
-
+    
     Move m = BestMove(board);
     x = m.x;
     y = m.y;
@@ -69,7 +27,6 @@ bool MinimaxPlayer::GetMove(Board *board, int &x, int &y)
     return true;
 }
 
-//region Minimax Algorithm
 Move MinimaxPlayer::BestMove(Board *board)
 {
     canCutoff = (board->MoveNumber() < (((bs - 1) * 2) - 1));
@@ -102,9 +59,7 @@ Move MinimaxPlayer::BestMove(Board *board)
                 cout << setw(12) << "Winning Move Found!" << endl;
                 return {r, c, 1};
             }
-//            printf("\nBEFORE\n"); //todo*****************************************
             double value = Minimax(tempBoard, 0, false, MIN, MAX);
-//            printf("\nAFTER""""""\n"); //todo*****************************************
             Move m(r, c, value);
             moves.push(m);
             cout << setw(12) << value << endl;
@@ -128,15 +83,11 @@ double MinimaxPlayer::Minimax(Board board, double depth, bool isMax, double A, d
     if (emptyCells.empty())
     {
         printf("FATAL ERROR: All cells used but no win was detected by Minimax!");
-        return board.Evaluation(0, 0);
+        return board.Evaluation(player, opponent) - depth;
     }
-    else if (DepthCutoff(depth))
+    else if (depth >= maxDepth)
     {
-        PathCell cut = PathEvaluation(board);
-        if (cut.x != 0 && cut.y != 0)
-            return static_cast<double>(cut.GetValue());
-        else
-            return -bs;
+        return Heuristic(board) - depth;
     }
 
     //random_shuffle(emptyCells.begin(), emptyCells.end()); //todo********** add when functional!
@@ -166,7 +117,7 @@ double MinimaxPlayer::Minimax(Board board, double depth, bool isMax, double A, d
             return 0.0;
         }
 
-        double thisVal = Minimax(tempBoard, depth + (0.1 * bs), !isMax, A, B);
+        double thisVal = Minimax(tempBoard, depth + 0.1, !isMax, A, B);
 
         if (isMax)
         {
@@ -194,97 +145,76 @@ double MinimaxPlayer::Minimax(Board board, double depth, bool isMax, double A, d
     return bestVal;
 }
 
-//SECTION - Evaluation
-PathCell MinimaxPlayer::PathEvaluation(Board board)
+double MinimaxPlayer::Heuristic(Board board)
 {
-    vector <PathCell> search;
+    bool thisScore[bs];
+    int bestScore = 0;
+    int thisLength = 0;
 
     for (int i = 0; i < bs; i++)
     {
-        if (player == -1 && board.GridValue(i, 0) == player)
-            search.push_back(PathCell(i, 0, nullptr));
-        else if (player == 1 && board.GridValue(0, i) == player)
-            search.push_back(PathCell(0, i, nullptr));
-    }
+        for (int j = 0; j < bs; j++)
+            thisScore[j] = false;
 
-    PathCell best(-1, -1, nullptr, -100, 100, search);
+        stack <Cell> path;
+        vector <Cell> visited;
 
-    if (search.empty())
-        return best;
-
-    for (PathCell c : search)
-    {
-        PathCell path = ReconstructPath(c, MakePath(board, c)).top();
-        printf("\nAFTER\n");
-
-        if (path.GetValue() > best.GetValue())
-            best = path;
-    }
-
-    return best;
-}
-
-PathCell MinimaxPlayer::MakePath(Board board, PathCell src)
-{
-    int h = src.h;
-    if ((player && h == src.x) || (!player && h == src.y))
-        h++;
-    int length = src.length + 1.0;
-    vector <PathCell> visited = src.visited;
-    visited.push_back(src);
-
-    PathCell best(-1, -1, nullptr, -100, 100, visited);
-
-    stack <Cell> n = board.CheckNeighbours(player, src.x, src.y);
-    if (n.empty())
-    {
-        return src;
-    }
-    else
-    {
-        while (!n.empty())
+        if (player == 1 && board.GetGrid()[0][i] == player)
         {
-            PathCell nPath(n.top().x, n.top().y, &src, h, length, visited);
-            if (!board.isInVector(src.visited, nPath))
-            {
-                PathCell c = MakePath(board, nPath);
-                if (c.GetValue() > best.GetValue())
-                    best = c;
-            }
-            n.pop();
+            path.push(Cell(0, i));
+            thisScore[0] = true;
         }
+        else if (player == -1 && board.GetGrid()[i][0] == player)
+        {
+            path.push(Cell(i, 0));
+            thisScore[0] = true;
+        }
+        else
+            continue;
+
+        while (!path.empty())
+        {
+            thisLength++;
+            Cell current = path.top();
+            path.pop();
+            visited.push_back(current);
+
+            stack <Cell> n = board.CheckNeighbours(player, current.x, current.y);
+            while (!n.empty())
+            {
+                if (n.top().x == -1 || n.top().y == -1)//todo whats this for?????
+                    return type;
+
+                if (board.isInVector(visited, n.top()))
+                {
+                    path.push(n.top());
+                }
+
+                if (player == 1)
+                {
+                    thisScore[n.top().x] = true;
+                }
+                else
+                {
+                    thisScore[n.top().y] = true;
+                }
+
+                n.pop();
+            }
+        }
+        int k = 0;
+        for (; k < bs; k++)
+            if (!thisScore[k])
+                break;
+
+        double value = (((double) k * 2.0) - (double) thisLength);
+
+        if (value > bestScore)
+            bestScore = k;
     }
-    if (best.x == -1 && best.y == -1)
-    {
-        printf("\nReturning Src\n");
-        return src;
-    }
-    return best;
-}
 
-stack <PathCell> MinimaxPlayer::ReconstructPath(PathCell src, PathCell final)
-{
-    stack <PathCell> path;
-    PathCell *next = &final;
-    int failsafe = 100;
-    while (failsafe > 0)
-    {
-        path.push(*next);
-        printf("\nRECONSTRUCT\n");
-
-        if (path.top().parent == nullptr)
-            return path;
-
-        if (next->parent == nullptr)
-            printf("\nReconstruct Error:\n");
-
-        next = next->parent;
-        failsafe--;
-    }
-    if (path.empty())
-        printf("\nERROR: Reconstruction of Minimax Path resulted in a path with no elements.\n");
-    printf("\nReconstruction End with Failure\n");
-    return path;
+    return
+            bestScore;
 }
 
 #endif /* MINIMAX_H_ */

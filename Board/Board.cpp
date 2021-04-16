@@ -227,18 +227,6 @@ bool Board::isInVector(vector <Cell> v, Cell e)
     return false;
 }
 
-bool Board::isInVector(vector <PathCell> v, PathCell e)
-{
-    if (v.empty())
-        return false;
-
-    for (PathCell i : v)
-        if (i.x == e.x && i.y == e.y)
-            return true;
-
-    return false;
-}
-
 bool Board::IsValidInput(int x, int y)
 {
     if (x < 0 || y < 0 || x >= boardSize || y >= boardSize)

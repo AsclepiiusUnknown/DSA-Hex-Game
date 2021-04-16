@@ -120,7 +120,7 @@ double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
     }
     else if (status == opponent)
     {
-        return -1.0 - depth;
+        return -1.0 + depth;
     }
     else if (status != 0)
     {

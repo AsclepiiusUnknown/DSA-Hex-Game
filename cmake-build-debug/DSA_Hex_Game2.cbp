@@ -89,7 +89,7 @@
 		<Unit filename="C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Main.cpp">
 			<Option target="DSA_Hex_Game2"/>
 		</Unit>
-		<Unit filename="C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStar.h">
+		<Unit filename="C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.h">
 			<Option target="DSA_Hex_Game2"/>
 		</Unit>
 		<Unit filename="C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/CMakeLists.txt">

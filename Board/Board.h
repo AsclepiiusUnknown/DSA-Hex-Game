@@ -100,8 +100,6 @@ public:
 
     bool isInVector(vector <Cell> v, Cell e);
 
-    bool isInVector(vector <PathCell> v, PathCell e);
-
     void PrintNeighbours(stack <Cell> s);
 
 

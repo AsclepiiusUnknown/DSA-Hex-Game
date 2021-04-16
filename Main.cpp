@@ -16,8 +16,8 @@ using namespace std;
 #include "Board/Board.cpp"
 #include "Players/Player.h"
 #include "HexGame.h"
-#include "Players/MinimaxPlayer.h"
-#include "Players/AStarPlayer.h"
+#include "Players/Minimax/MinimaxPlayer.h"
+#include "Players/Minimax/MinimaxPlayer.cpp"
 #include "Players/HumanPlayer.h"
 #include "Players/RandomPlayer.h"
 #include "Players/MonteCarloPlayer.h"
@@ -212,12 +212,7 @@ Setup Human()
         }
         case 3:
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (0.25 * boardSize));
-            break;
-        }
-        case 4:
-        {
-            p2 = new AStarPlayer(-1, "Naughts (O)");
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (0.25));
             break;
         }
 
@@ -323,12 +318,7 @@ Setup Simulation()
         }
         case 3:
         {
-            p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (0.25 * boardSize));
-            break;
-        }
-        case 4:
-        {
-            p1 = new AStarPlayer(1, "Crosses (X)");
+            p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (0.25));
             break;
         }
 
@@ -354,12 +344,7 @@ Setup Simulation()
         }
         case 3:
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy2) * (0.25 * boardSize));
-            break;
-        }
-        case 4:
-        {
-            p2 = new AStarPlayer(-1, "Naughts (O)");
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy2) * (0.25));
             break;
         }
 
@@ -467,8 +452,8 @@ void PrintResults(Stats stats)
 
     cout << setprecision(0) << setw(colWidth) << "Total Turns" << setprecision(4) << setw(colWidth) << xTurns << setw(colWidth) << oTurns << endl;
 
-    int xAvg = round(xTurns / stats.turnsTaken.size());
-    int oAvg = round(oTurns / stats.turnsTaken.size());
+    int xAvg = round((double) xTurns / (double) stats.turnsTaken.size());
+    int oAvg = round((double) oTurns / (double) stats.turnsTaken.size());
     cout << setprecision(0) << setw(colWidth) << "Average Turns" << setprecision(4) << setw(colWidth) << xAvg << setw(colWidth) << oAvg << endl;
 
     int xWinTurns = 0;

@@ -49,8 +49,8 @@ HexGame.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/HexGame.h
 Players/Minimax/MinimaxPlayer.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.h
-Players/AStarPlayer.h
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStarPlayer.h
+Players/Minimax/MinimaxPlayer.cpp
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.cpp
 Players/HumanPlayer.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/HumanPlayer.h
 Players/RandomPlayer.h
@@ -58,13 +58,11 @@ C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/
 Players/MonteCarloPlayer.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/MonteCarloPlayer.h
 
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStar.h
-
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStarPlayer.h
-AStar.h
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStar.h
-
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/HumanPlayer.h
+
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.cpp
+MinimaxPlayer.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.h
 
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.h
 

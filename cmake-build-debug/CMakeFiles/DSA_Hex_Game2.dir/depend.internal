@@ -7,9 +7,8 @@ CMakeFiles/DSA_Hex_Game2.dir/Main.cpp.obj
  C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Cell.h
  C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/HexGame.h
  C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Main.cpp
- C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStar.h
- C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStarPlayer.h
  C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/HumanPlayer.h
+ C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.cpp
  C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.h
  C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/MonteCarloPlayer.h
  C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Player.h
