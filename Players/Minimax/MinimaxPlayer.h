@@ -202,12 +202,12 @@ PathCell MinimaxPlayer::PathEvaluation(Board board)
     for (int i = 0; i < bs; i++)
     {
         if (player == -1 && board.GridValue(i, 0) == player)
-            search.push_back(PathCell(i, 0, NULL));
+            search.push_back(PathCell(i, 0, nullptr));
         else if (player == 1 && board.GridValue(0, i) == player)
-            search.push_back(PathCell(0, i, NULL));
+            search.push_back(PathCell(0, i, nullptr));
     }
 
-    PathCell best(-1, -1, NULL, -100, 100, search);
+    PathCell best(-1, -1, nullptr, -100, 100, search);
 
     if (search.empty())
         return best;
@@ -233,7 +233,7 @@ PathCell MinimaxPlayer::MakePath(Board board, PathCell src)
     vector <PathCell> visited = src.visited;
     visited.push_back(src);
 
-    PathCell best(-1, -1, NULL, -100, 100, visited);
+    PathCell best(-1, -1, nullptr, -100, 100, visited);
 
     stack <Cell> n = board.CheckNeighbours(player, src.x, src.y);
     if (n.empty())
@@ -272,10 +272,10 @@ stack <PathCell> MinimaxPlayer::ReconstructPath(PathCell src, PathCell final)
         path.push(*next);
         printf("\nRECONSTRUCT\n");
 
-        if (path.top().parent == NULL)
+        if (path.top().parent == nullptr)
             return path;
 
-        if (next->parent == NULL)
+        if (next->parent == nullptr)
             printf("\nReconstruct Error:\n");
 
         next = next->parent;

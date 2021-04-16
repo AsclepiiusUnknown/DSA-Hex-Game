@@ -28,7 +28,7 @@ class PathCell
 public:
     int x, y;
     int length = 0, h = 0;
-    PathCell *parent = NULL;
+    PathCell *parent = nullptr;
     vector <PathCell> visited;
 
     double GetValue()
@@ -83,7 +83,7 @@ public:
         g = 1000;
         h = 1000;
         f = g + h;
-        parent = NULL;
+        parent = nullptr;
     }
 
     bool operator>(const ASCell &asCell) const
