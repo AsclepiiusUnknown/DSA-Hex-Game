@@ -8,22 +8,20 @@ protected:
     string name;
     string symbol;
 public:
-    Player(int t, string s, string n) :
-            type(t), symbol(s), name(n)
-    {
-    }
+    Player(int t, string s, string n) : type(t), symbol(s), name(n)
+    {}
 
-    string getPlayerName()
+    string GetName()
     {
         return name;
     }
 
-    string getPlayerSymbol()
+    string GetSymbol()
     {
         return symbol;
     }
 
-    int getType()
+    int GetType()
     {
         return type;
     }

@@ -22,7 +22,7 @@ public:
     {
 //        printf("\nCheckPreowned Start\n");
 
-        int leftTop = 0, rightBottom = board.getBoardSize() - 1;
+        int leftTop = 0, rightBottom = board.GetBoardSize() - 1;
 
         stack <Cell> preOpen = board.CheckNeighbours(player, src.x, src.y);
         vector <Cell> preClosed;
@@ -68,7 +68,7 @@ public:
     {
 //        printf("\nEvaluateCell Start\n");
 
-        int bs = board.getBoardSize();
+        int bs = board.GetBoardSize();
         bool start = false, finish = false;
         int leftTop = 0, rightBottom = bs - 1;
 
@@ -203,8 +203,8 @@ public:
 stack <ASCell> AStar::CheckNeighbours(Board board, int target, int x, int y)
 {
     stack <ASCell> neighbours;
-    int **grid = board.getGrid();
-    int bs = board.getBoardSize();
+    int **grid = board.GetGrid();
+    int bs = board.GetBoardSize();
 
     //Left
     if ((y - 1) >= 0)

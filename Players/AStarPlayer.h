@@ -1,7 +1,7 @@
 #ifndef ASTAR_H_
 #define ASTAR_H_
 
-#include "../AStar.h"
+#include "AStar.h"
 
 class AStarPlayer : public Player
 {
@@ -20,7 +20,7 @@ public:
 
 
 public:
-    stack<ASCell> EvaluateAStar(Board board, int player, Cell _src)
+    stack <ASCell> EvaluateAStar(Board board, int player, Cell _src)
     {
         printf("\nEvaluateAStar Start\n");
         ASCell src(_src.x, _src.y);
@@ -38,10 +38,10 @@ public:
     {
         printf("\nCheckPreowned Start\n");
 
-        int leftTop = 0, rightBottom = board.getBoardSize() - 1;
+        int leftTop = 0, rightBottom = board.GetBoardSize() - 1;
 
-        stack<Cell> preOpen = board.CheckNeighbours(player, src.x, src.y);
-        vector<Cell> preClosed;
+        stack <Cell> preOpen = board.CheckNeighbours(player, src.x, src.y);
+        vector <Cell> preClosed;
         while (!preOpen.empty())
         {
             Cell c = preOpen.top();
@@ -67,7 +67,7 @@ public:
             }
             else
             {
-                stack<Cell> n = board.CheckNeighbours(player, c.x, c.y); //Get empty neighbours
+                stack <Cell> n = board.CheckNeighbours(player, c.x, c.y); //Get empty neighbours
                 while (!n.empty())
                 {
                     if (!board.isInVector(preClosed, n.top()))
@@ -80,24 +80,24 @@ public:
         return 0;
     }
 
-    stack<ASCell> EvaluateCell(Board board, int player, ASCell src)
+    stack <ASCell> EvaluateCell(Board board, int player, ASCell src)
     {
         printf("\nEvaluateCell Start\n");
 
-        int bs = board.getBoardSize();
+        int bs = board.GetBoardSize();
         bool start = false, finish = false;
         int leftTop = 0, rightBottom = bs - 1;
 
         if (CheckPreowned(board, player, src, start, finish) == 1)
         {
-            stack<ASCell> pre;
+            stack <ASCell> pre;
             pre.push(ASCell(src.x, src.y));
             return pre;
         }
 
-        priority_queue<ASCell, vector<ASCell>, greater<ASCell>> open;
-        vector<ASCell> closed;
-        stack<Cell> tempN = board.CheckNeighbours(0, src.x, src.y);
+        priority_queue <ASCell, vector<ASCell>, greater<ASCell>> open;
+        vector <ASCell> closed;
+        stack <Cell> tempN = board.CheckNeighbours(0, src.x, src.y);
         while (!tempN.empty())
         {
             open.push(ASCell(tempN.top().x, tempN.top().y));
@@ -137,7 +137,7 @@ public:
             }
             else
             {
-                stack<Cell> n = board.CheckNeighbours(0, c.x, c.y); //Get empty neighbours
+                stack <Cell> n = board.CheckNeighbours(0, c.x, c.y); //Get empty neighbours
                 while (!n.empty())
                 {
                     if (!isInVector(closed, ASCell(n.top().x, n.top().y)))
@@ -175,9 +175,9 @@ public:
         return {};
     }
 
-    stack<ASCell> ReconstructPath(int failSafe, ASCell src, ASCell current)
+    stack <ASCell> ReconstructPath(int failSafe, ASCell src, ASCell current)
     {
-        stack<ASCell> path;
+        stack <ASCell> path;
         ASCell next = current;
         while (failSafe > 0)
         {
@@ -192,7 +192,7 @@ public:
         return path;
     }
 
-    bool isInVector(vector<ASCell> s, ASCell e)
+    bool isInVector(vector <ASCell> s, ASCell e)
     {
         if (s.empty())
             return false;
@@ -207,7 +207,7 @@ public:
 
 bool AStarPlayer::GetMove(Board *board, int &x, int &y)
 {
-    int bs = board->getBoardSize();
+    int bs = board->GetBoardSize();
 
     for (int r = 0; r < bs; r++)
         for (int c = 0; c < bs; c++)

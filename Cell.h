@@ -3,7 +3,7 @@
 
 struct Cell
 {
-    int x, y; //coordinates for the cell
+    int x, y;
 
     Cell(int _x, int _y) : x(_x), y(_y)
     {}
@@ -11,8 +11,8 @@ struct Cell
 
 struct Move
 {
-    int x, y; //coordinates for the move
-    double v; //Cell value
+    int x, y;
+    double v;
 
     Move(int _x, int _y, double _v) : x(_x), y(_y), v(_v)
     {}
@@ -36,13 +36,9 @@ public:
 
     bool Compare(PathCell other)
     {
-//        printf("\nC 1\n");
         if (x == other.x && y == other.y && parent == other.parent && GetValue() == other.GetValue())
-        {
-//            printf("\nC 2\n");
             return true;
-        }
-//        printf("\nC 3\n");
+
         return false;
     }
 
@@ -59,7 +55,7 @@ private:
     double f, g, h;
     ASCell *parent;
 public:
-    int x, y; //coordinates for the move
+    int x, y;
 
     void SetValues(double _h, double _g)
     {

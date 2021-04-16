@@ -6,9 +6,11 @@
 
 #IncludeRegexTransform: 
 
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/AStar.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Board/Board.cpp
+Board.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Board/Board.h
 
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Board.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Board/Board.h
 
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Cell.h
 
@@ -29,8 +31,8 @@ string
 -
 vector
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/vector
-time.h
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/time.h
+ctime
+-
 random
 -
 stack
@@ -39,14 +41,14 @@ algorithm
 -
 Cell.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Cell.h
-Board.h
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Board.h
+Board/Board.cpp
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Board/Board.cpp
 Players/Player.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Player.h
 HexGame.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/HexGame.h
-Players/MinimaxPlayer.h
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/MinimaxPlayer.h
+Players/Minimax/MinimaxPlayer.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.h
 Players/AStarPlayer.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStarPlayer.h
 Players/HumanPlayer.h
@@ -56,15 +58,15 @@ C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/
 Players/MonteCarloPlayer.h
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/MonteCarloPlayer.h
 
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStar.h
+
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStarPlayer.h
-../AStar.h
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/AStar.h
+AStar.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/AStar.h
 
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/HumanPlayer.h
 
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/MinimaxPlayer.h
-../AStar.h
-C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/AStar.h
+C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/Minimax/MinimaxPlayer.h
 
 C:/Users/ascle/Desktop/UNI/DSA/assignments/Assignment 1 - Hex Game/DSA-Hex-Game/Players/MonteCarloPlayer.h
 

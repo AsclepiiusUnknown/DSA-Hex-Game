@@ -1,174 +1,19 @@
-#ifndef BOARD_H_
-#define BOARD_H_
+#ifndef BOARD_CXX
+#define BOARD_CXX
 
-class Board
-{
-private:
-    int boardSize;
-    int turn;
-    vector <Cell> emptyCells;
-    vector <Cell> allCells;
-public:
-    Board(int bs)
-    {
-        boardSize = bs;
-        grid = new int *[boardSize];
-        for (int i = 0; i < boardSize; i++)
-            grid[i] = new int[boardSize];
+#include "Board.h"
 
-        for (int i = 0; i < boardSize; i++)
-            for (int j = 0; j < boardSize; j++)
-            {
-                grid[i][j] = 0;
-            }
-        turn = 1;
-    }
-
-    virtual ~Board()
-    {
-
-        for (int i = 0; i < boardSize; i++)
-            delete[] grid[i];
-
-        delete[] grid;
-    }
-
-    Board(Board &cboard)
-    {
-        boardSize = cboard.getBoardSize();
-
-        grid = new int *[boardSize];
-        for (int i = 0; i < boardSize; i++)
-            grid[i] = new int[boardSize];
-
-        for (int i = 0; i < boardSize; i++)
-            for (int j = 0; j < boardSize; j++)
-                grid[i][j] = 0;
-
-        for (int i = 0; i < boardSize; i++)
-        {
-            for (int j = 0; j < boardSize; j++)
-            {
-                grid[i][j] = cboard.getGridVal(i, j);
-            }
-        }
-
-        turn = cboard.getTurn();
-        emptyCells = cboard.emptyCells;
-        allCells = cboard.allCells;
-    }
-
-    //region Spots
-    void addCells();
-
-    void PrintCells(vector <Cell> cells);
-
-    //region Free Spots
-    vector <Cell> getFreeCells()
-    {
-        return emptyCells;
-    }
-
-    int freeCellsSize()
-    {
-        return emptyCells.size();
-    }
-
-    void removeFreeCell(int x, int y);
-    //endregion
-
-    //region All Spots
-    vector <Cell> getAllCells()
-    {
-        return allCells;
-    }
-
-    int allCellsSize()
-    {
-        return allCells.size();
-    }
-    //endregion
-
-    //endregion
-
-    int **grid;
-
-    int getBoardSize()
-    {
-        return boardSize;
-    }
-
-    int getGridVal(int x, int y)
-    {
-        return grid[x][y];
-    }
-
-    int **getGrid()
-    {
-        return grid;
-    }
-
-    int getTurn()
-    {
-        return turn;
-    }
-
-    int MoveNumber()
-    { return (((boardSize * boardSize) - freeCellsSize()) + 1); }
-
-    bool setTurn(int playerType)
-    {
-        turn = playerType;
-        return true;
-    }
-
-    bool validInput(int, int);
-
-    bool AddMove(int playerIndex, int x, int y);
-
-    bool CheckForWin(int playerType);
-
-    bool CheckLine(int playerType);
-
-    bool CheckDFS(int playerType);
-
-    bool CanWin()
-    {
-        if ((freeCellsSize() + (boardSize * 2 - 1)) <= (boardSize * boardSize))
-            return true;
-        return false;
-    }
-
-    void PrintBoard();
-
-    bool isBoardFull();
-
-    bool isFullThisTurn();
-
-    stack <Cell> CheckNeighbours(int target, int x, int y);
-
-    void PrintNeighbours(stack <Cell> s);
-
-    void printCoord(int x, int y, bool el);
-
-    bool isInVector(vector <Cell> v, Cell e);
-
-    bool AddTestMove(int playerIndex, int x, int y);
-
-    int Evaluation(int player, int opponent);
-
-    bool isInVector(vector <PathCell> v, PathCell e);
-};
-
+//region Spots
 void Board::addCells()
 {
-    for (int x = 0; x < boardSize; x++)
-        for (int y = 0; y < boardSize; y++)
+    for (int r = 0; r < boardSize; r++)
+    {
+        for (int c = 0; c < boardSize; c++)
         {
-            Cell cell(x, y);
+            Cell cell(r, c);
             emptyCells.push_back(cell);
-            allCells.push_back(cell);
         }
+    }
 }
 
 void Board::PrintCells(vector <Cell> cells)
@@ -193,7 +38,7 @@ void Board::PrintCells(vector <Cell> cells)
     cout << endl;
 }
 
-void Board::removeFreeCell(int x, int y)
+void Board::RemoveEmptyCell(int x, int y)
 {
     for (int i = 0; i < emptyCells.size(); i++)
     {
@@ -204,68 +49,9 @@ void Board::removeFreeCell(int x, int y)
         }
     }
 }
+//endregion
 
-bool Board::validInput(int x, int y)
-{
-    if (x < 0 || y < 0 || x >= boardSize || y >= boardSize)
-    {
-        cout << "Invalid Move. ASCell (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
-        return false;
-    }
-
-    if (grid[x][y] != 0)
-    {
-        cout << "Invalid move. The cell (" << x + 1 << ", " << y + 1 << ") has been occupied." << endl;
-        return false;
-    }
-
-    return true;
-}
-
-bool Board::AddMove(int playerIndex, int x, int y)
-{
-    if (playerIndex != turn)
-    {
-        cout << "It is not the player's turn!" << endl;
-        return false;
-    }
-
-    if (grid[x][y] != 0)
-    {
-        cout << "Invalid move. The cell has been occupied." << endl;
-        return false;
-    }
-
-    grid[x][y] = playerIndex;
-    removeFreeCell(x, y);
-
-    stack <Cell> neighbours = CheckNeighbours(playerIndex, x, y);
-    if (!neighbours.empty())
-    {
-        cout << ", which connects to: ";
-        PrintNeighbours(neighbours);
-    }
-    else
-        cout << endl;
-
-    turn = -1 * turn;
-    return true;
-}
-
-bool Board::AddTestMove(int playerIndex, int x, int y)
-{
-    if (!validInput(x, y))
-    {
-        printf("ERROR: Invalid input used within Board's Add Test Move function\n");
-        return false;
-    }
-
-    grid[x][y] = playerIndex;
-    removeFreeCell(x, y);
-
-    return true;
-}
-
+//region Board
 void Board::PrintBoard()
 {
     //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -407,28 +193,162 @@ bool Board::isBoardFull()
     cout << "Woops! The board is full and no one has won, looks like it's game over." << endl;
     return true;
 }
+//endregion
 
-bool Board::isFullThisTurn()
+//region Neighbours
+stack <Cell> Board::CheckNeighbours(int target, int x, int y)
 {
-    int count = 0;
-    for (int i = 0; i < boardSize; i++)
-    {
-        for (int j = 0; j < boardSize; j++)
-        {
-            if (grid[i][j] == 0)
-                ++count;
-        }
-    }
+    stack <Cell> neighbours;
 
-    if (count == 1)
-    {
-        cout << "Yikes, looks like there's only one free spot. Better make this move count or its game over." << endl;
-        return true;
-    }
-    else
-        return false;
+    //Left
+    if ((y - 1) >= 0)
+        if (grid[x][y - 1] == target)
+        {
+
+            neighbours.push(Cell(x, y - 1));
+        }
+
+    //Right
+    if ((y + 1) < boardSize)
+        if (grid[x][y + 1] == target)
+        {
+            neighbours.push(Cell(x, y + 1));
+        }
+
+    //Up-Left
+    if ((x - 1) >= 0)
+        if (grid[x - 1][y] == target)
+        {
+            neighbours.push(Cell(x - 1, y));
+        }
+
+    //Up-Right
+    if ((x - 1) >= 0 && (y + 1) < boardSize)
+        if (grid[x - 1][y + 1] == target)
+        {
+            neighbours.push(Cell(x - 1, y + 1));
+        }
+
+    //Down-Left
+    if ((x + 1) < boardSize && (y - 1) >= 0)
+        if (grid[x + 1][y - 1] == target)
+        {
+            neighbours.push(Cell(x + 1, y - 1));
+        }
+
+    //Down-Right
+    if ((x + 1) < boardSize)
+        if (grid[x + 1][y] == target)
+        {
+            neighbours.push(Cell(x + 1, y));
+        }
+
+    return neighbours;
 }
 
+void Board::PrintNeighbours(stack <Cell> s)
+{
+    if (s.empty())
+        return;
+
+    Cell t = s.top();
+    s.pop();
+
+    PrintNeighbours(s);
+
+    printCoord(t.x + 1, t.y + 1, false);
+    cout << ", ";
+}
+
+bool Board::isInVector(vector <Cell> v, Cell e)
+{
+    if (v.empty())
+        return false;
+
+    for (Cell i : v)
+        if (i.x == e.x && i.y == e.y)
+            return true;
+
+    return false;
+}
+
+bool Board::isInVector(vector <PathCell> v, PathCell e)
+{
+    if (v.empty())
+        return false;
+
+    for (PathCell i : v)
+        if (i.x == e.x && i.y == e.y)
+            return true;
+
+    return false;
+}
+//endregion
+
+//region Moving
+bool Board::IsValidInput(int x, int y)
+{
+    if (x < 0 || y < 0 || x >= boardSize || y >= boardSize)
+    {
+        cout << "Invalid Move. ASCell (" << x + 1 << ", " << y + 1 << ") out of range!" << endl;
+        return false;
+    }
+
+    if (grid[x][y] != 0)
+    {
+        cout << "Invalid move. The cell (" << x + 1 << ", " << y + 1 << ") has been occupied." << endl;
+        return false;
+    }
+
+    return true;
+}
+
+bool Board::AddMove(int playerIndex, int x, int y)
+{
+    if (playerIndex != turn)
+    {
+        cout << "It is not the player's turn!" << endl;
+        return false;
+    }
+
+    if (grid[x][y] != 0)
+    {
+        cout << "Invalid move. The cell has been occupied." << endl;
+        return false;
+    }
+
+    grid[x][y] = playerIndex;
+    RemoveEmptyCell(x, y);
+
+    stack <Cell> neighbours = CheckNeighbours(playerIndex, x, y);
+    if (!neighbours.empty())
+    {
+        cout << ", which connects to: ";
+        PrintNeighbours(neighbours);
+    }
+    else
+        cout << endl;
+
+    turn = -1 * turn;
+    return true;
+}
+
+bool Board::AddTestMove(int playerIndex, int x, int y)
+{
+    if (!IsValidInput(x, y))
+    {
+        printf("ERROR: Invalid input used within Board's Add Test Move function\n");
+        return false;
+    }
+
+    grid[x][y] = playerIndex;
+    RemoveEmptyCell(x, y);
+
+    return true;
+}
+//endregion
+
+//region Win Checking
 int Board::Evaluation(int player, int opponent)
 {
     if (CanWin())
@@ -440,7 +360,7 @@ int Board::Evaluation(int player, int opponent)
             return (opponent);
     }
 
-    if (freeCellsSize() > 0)
+    if (EmptySize() > 0)
         return 0; //continue value
 
     return -5; //Error Check (shouldn't reach this point)
@@ -449,10 +369,9 @@ int Board::Evaluation(int player, int opponent)
 bool Board::CheckForWin(int playerType)
 {
     if (CanWin())
-    {
-        if (CheckLine(playerType) || CheckDFS(playerType))
+        if (CheckLine(playerType) || DepthFirstSearch(playerType))
             return true;
-    }
+
     return false;
 }
 
@@ -512,7 +431,7 @@ bool Board::CheckLine(int playerType)
     return false;
 }
 
-bool Board::CheckDFS(int playerType) //DFS
+bool Board::DepthFirstSearch(int playerType)
 {
     bool start = false, finish = false;
     int startGoal = 0, endGoal = boardSize - 1;
@@ -564,118 +483,7 @@ bool Board::CheckDFS(int playerType) //DFS
     }
     return false;
 }
-
-stack <Cell> Board::CheckNeighbours(int target, int x, int y)
-{
-    stack <Cell> neighbours;
-
-    //Left
-    if ((y - 1) >= 0)
-    {
-//        if (target == 0)
-//            cout << "LEFT: " << grid[x][y - 1] << endl;
-        if (grid[x][y - 1] == target)
-        {
-
-            neighbours.push(Cell(x, y - 1));
-        }
-    }
-
-    //Right
-    if ((y + 1) < boardSize)
-    {
-//        if (target == 0)
-//            cout << "RIGHT: " << grid[x][y + 1] << endl;
-        if (grid[x][y + 1] == target)
-        {
-            neighbours.push(Cell(x, y + 1));
-        }
-    }
-
-    //Up-Left
-    if ((x - 1) >= 0)
-    {
-//        if (target == 0)
-//            cout << "UP LEFT: " << grid[x - 1][y] << endl;
-        if (grid[x - 1][y] == target)
-        {
-            neighbours.push(Cell(x - 1, y));
-        }
-    }
-
-    //Up-Right
-    if ((x - 1) >= 0 && (y + 1) < boardSize)
-    {
-//        if (target == 0)
-//            cout << "UP RIGHT: " << grid[x - 1][y + 1] << endl;
-        if (grid[x - 1][y + 1] == target)
-        {
-            neighbours.push(Cell(x - 1, y + 1));
-        }
-    }
-
-    //Down-Left
-    if ((x + 1) < boardSize && (y - 1) >= 0)
-    {
-//        if (target == 0)
-//            cout << "DOWN LEFT: " << grid[x + 1][y - 1] << endl;
-        if (grid[x + 1][y - 1] == target)
-        {
-            neighbours.push(Cell(x + 1, y - 1));
-        }
-    }
-
-    //Down-Right
-    if ((x + 1) < boardSize)
-    {
-//        if (target == 0)
-//            cout << "DOWN RIGHT: " << grid[x + 1][y] << endl;
-        if (grid[x + 1][y] == target)
-        {
-            neighbours.push(Cell(x + 1, y));
-        }
-    }
-
-    return neighbours;
-}
-
-void Board::PrintNeighbours(stack <Cell> s)
-{
-    if (s.empty())
-        return;
-
-    Cell t = s.top();
-    s.pop();
-
-    PrintNeighbours(s);
-
-    printCoord(t.x + 1, t.y + 1, false);
-    cout << ", ";
-}
-
-bool Board::isInVector(vector <Cell> v, Cell e)
-{
-    if (v.empty())
-        return false;
-
-    for (Cell i : v)
-        if (i.x == e.x && i.y == e.y)
-            return true;
-
-    return false;
-}
-
-bool Board::isInVector(vector <PathCell> v, PathCell e)
-{
-    if (v.empty())
-        return false;
-
-    for (PathCell i : v)
-        if (i.x == e.x && i.y == e.y)
-            return true;
-
-    return false;
-}
+//endregion
 
 void Board::printCoord(int x, int y, bool el)
 {
@@ -684,4 +492,4 @@ void Board::printCoord(int x, int y, bool el)
         cout << endl;
 }
 
-#endif /* BOARD_H_ */
+#endif // BOARD_CXX

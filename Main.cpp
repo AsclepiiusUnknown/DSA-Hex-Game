@@ -1,4 +1,4 @@
-//region References
+//region Headers
 using namespace std;
 
 #include "chrono"
@@ -8,16 +8,16 @@ using namespace std;
 #include <iomanip>
 #include <string>
 #include "vector"
-#include "time.h"
+#include <ctime>
 #include<random>
 #include<stack>
 #include<algorithm>
 
 #include "Cell.h"
-#include "Board.h"
+#include "Board/Board.cpp"
 #include "Players/Player.h"
 #include "HexGame.h"
-#include "Players/MinimaxPlayer.h"
+#include "Players/Minimax/MinimaxPlayer.h"
 #include "Players/AStarPlayer.h"
 #include "Players/HumanPlayer.h"
 #include "Players/RandomPlayer.h"
@@ -26,9 +26,9 @@ using namespace std;
 
 struct Setup
 {
-    Player *p1;
-    Player *p2;
-    Board *board;
+    Player *p1{};
+    Player *p2{};
+    Board *board{};
 
     int times = 1;
     double p1Accuracy = 0;
@@ -42,9 +42,9 @@ struct Stats
     vector<int> durations;
     string p1Name;
     string p2Name;
-    int boardsize;
-    double p1Accuracy;
-    double p2Accuracy;
+    int boardsize{};
+    double p1Accuracy{};
+    double p2Accuracy{};
 };
 
 Setup Human();
@@ -56,7 +56,8 @@ void PrintResults(Stats stats);
 int main()
 {
     RESTART:
-    srand(time(NULL));
+    system("CLS");
+    srand(time(nullptr));
 
     //region Pre-Game Input
     //SECTION - AI Simulation Check
@@ -88,34 +89,36 @@ int main()
         showAll = false;
 
     Stats stats;
-    stats.p1Name = setup.p1->getPlayerName();
-    stats.p2Name = setup.p2->getPlayerName();
-    stats.boardsize = setup.board->getBoardSize();
+    stats.p1Name = setup.p1->GetName();
+    stats.p2Name = setup.p2->GetName();
+    stats.boardsize = setup.board->GetBoardSize();
     stats.p1Accuracy = setup.p1Accuracy;
     stats.p2Accuracy = setup.p2Accuracy;
 
     int startingPlayer = 1;
     while (setup.times > 0)
     {
-        Board *currentBoard = new Board(setup.board->getBoardSize());
-        //Create and begin a new game using our predetermined values
+        auto *currentBoard = new Board(setup.board->GetBoardSize());
         HexGame game(currentBoard, setup.p1, setup.p2);
+
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        int winner = game.play(showAll, startingPlayer);
+        int winner = game.Play(showAll, startingPlayer);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
         if (winner == 1 || winner == -1)
+        {
             stats.wins.push_back(winner);
+        }
         else
         {
-            printf("FATAL ERROR: No winner was found in main()");
+            printf("\nFATAL ERROR: No winner was found in main()\n");
             return 0;
         }
 
-        stats.turnsTaken.push_back((currentBoard->getBoardSize() * currentBoard->getBoardSize()) - currentBoard->freeCellsSize());
+        stats.turnsTaken.push_back((currentBoard->GetBoardSize() * currentBoard->GetBoardSize()) - currentBoard->EmptySize());
         stats.durations.push_back(static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(end - begin).count()));
 
-        if (setup.times <= 1) //If this is meant to be the last round check if they want to play another
+        if (setup.times <= 1)
         {
             if (!showAll)
                 system("CLS");
@@ -123,7 +126,7 @@ int main()
             PrintResults(stats);
 
             string yesNo;
-            cout << "Do you want to play again? [Y]es | [N]o | [R]estart program" << endl;
+            cout << "Do you want to Play again? [Y]es | [N]o | [R]estart program" << endl;
             cin >> yesNo;
             if (!showAll)
                 system("CLS");
@@ -133,10 +136,7 @@ int main()
             else if (yesNo == "N" || yesNo == "n")
                 cout << "Okay, bye." << endl;
             else if (yesNo == "R")
-            {
-                system("CLS");
                 goto RESTART;
-            }
             else
                 cout << "Invalid input so I'll take that as a no. Bye." << endl;
         }
@@ -153,7 +153,7 @@ int main()
 
 Setup Human()
 {
-    //region Pre-Human Input
+    //region Pre-Game Input
     //SECTION - Get Input for who the player wants to verse (default is of type RandomPlayer)
     int p2Type = 1;
     cout << "Who do you want to verse? (0 = another player, 1 = Random AI, 2 = Monte-Carlo AI, 3 = Minimax AI)" << endl;
@@ -197,9 +197,9 @@ Setup Human()
     }
     //endregion
 
-    //region Human Setup
+    //region Game Setup
     //SECTION - Setup the players based off of the input from above.
-    Board *board = new Board(boardSize);
+    auto *board = new Board(boardSize);
     Player *p1 = new HumanPlayer(1, "Crosses (X)");
     Player *p2;
 
@@ -223,10 +223,10 @@ Setup Human()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (0.15 * boardSize));
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (0.25 * boardSize));
             break;
         }
-        case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
+        case 4:     //A* Player 2 (Experimental AI)
         {
             p2 = new AStarPlayer(-1, "Naughts (O)");
             break;
@@ -252,7 +252,7 @@ Setup Human()
 
 Setup Simulation()
 {
-    //region Pre-Human Input
+    //region Pre-Game Input
     //SECTION - Get Input for player 1 (default is of type RandomPlayer)
     int p1Type = 1;
     cout << "Who do you want as player 1? (1 = Bad AI, 2 = Better AI, 3 = Best AI)" << endl;
@@ -326,9 +326,9 @@ Setup Simulation()
     system("CLS");
     //endregion
 
-    //region Human Setup
+    //region Game Setup
     //SECTION - Setup the players based off of the input from above.
-    Board *board = new Board(boardSize);
+    auto *board = new Board(boardSize);
     Player *p1;
     Player *p2;
 
@@ -346,10 +346,10 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 1 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (0.15 * boardSize));
+            p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (0.25 * boardSize));
             break;
         }
-        case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
+        case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better Play on big boards
         {
             p1 = new AStarPlayer(1, "Crosses (X)");
             break;
@@ -377,10 +377,10 @@ Setup Simulation()
         }
         case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
         {
-            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy2) * (1.0 / boardSize) * (4 * 0.3));
+            p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy2) * (0.25 * boardSize));
             break;
         }
-        case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better play on big boards
+        case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better Play on big boards
         {
             p2 = new AStarPlayer(-1, "Naughts (O)");
             break;
@@ -411,7 +411,6 @@ void PrintResults(Stats stats)
     //region Setup
     //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    double n = 1;
     int colWidth = 20;
     //table header
     cout << endl << setfill('*') << setw(3 * colWidth) << "*" << endl;
@@ -429,6 +428,7 @@ void PrintResults(Stats stats)
     //endregion
 
     //region Data
+    //region Player Info
     //SECTION - Player Type
     cout << setprecision(0) << setw(colWidth) << "PLAYER INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
     cout << setprecision(0) << setw(colWidth) << "Player Type" << setprecision(4) << setw(colWidth) << stats.p1Name << setw(colWidth) << stats.p2Name << endl;
@@ -442,13 +442,14 @@ void PrintResults(Stats stats)
         cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << stats.p1Accuracy << setw(colWidth) << "N/A" << endl;
     else
         cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << stats.p1Accuracy << setw(colWidth) << stats.p2Accuracy << endl;
+    //endregion
 
     //region WIN INFO
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;
     cout << setprecision(0) << setw(colWidth) << "WIN INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
 
-    //Loop through all the wins, counting for each side and making a list of the winning indicies (for later)
+    //Loop through all the wins, counting for each side and making a list of the winning indices (for later)
     vector<int> xIndices, oIndices;
     int xWins = 0, oWins = 0;
     for (int i = 0; i < stats.wins.size(); i++)
@@ -469,8 +470,8 @@ void PrintResults(Stats stats)
     cout << setprecision(0) << setw(colWidth) << "No. of Wins" << setprecision(4) << setw(colWidth) << xWins << setw(colWidth) << oWins << endl;
 
     //SECTION - Win Percent
-    int xPct = round((static_cast<double>(xWins) / stats.wins.size()) * 100);
-    int oPct = round((static_cast<double>(oWins) / stats.wins.size()) * 100);
+    int xPct = round((xWins / stats.wins.size()) * 100);
+    int oPct = round((oWins / stats.wins.size()) * 100);
     string xPctString = std::to_string(xPct) + "%";
     string oPctString = std::to_string(oPct) + "%";
     cout << setprecision(0) << setw(colWidth) << "% of Wins" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
@@ -537,7 +538,7 @@ void PrintResults(Stats stats)
     //endregion
 
 
-    //SECTION - Board Info
+    //SECTION - BoardO Info
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;
     xPct = round((static_cast<double>(xAvg) / (stats.boardsize * stats.boardsize)) * 100);
@@ -545,10 +546,10 @@ void PrintResults(Stats stats)
     xPctString = std::to_string(xPct) + "%";
     oPctString = std::to_string(oPct) + "%";
     cout << setprecision(0) << setw(colWidth) << "BOARD INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
-    cout << setprecision(0) << setw(colWidth) << "Board Size" << setprecision(4) << setw(colWidth) << stats.boardsize << setw(colWidth) << stats.boardsize << endl;
+    cout << setprecision(0) << setw(colWidth) << "BoardO Size" << setprecision(4) << setw(colWidth) << stats.boardsize << setw(colWidth) << stats.boardsize << endl;
     cout << setprecision(0) << setw(colWidth) << "Total No. of Cells" << setprecision(4) << setw(colWidth) << stats.boardsize * stats.boardsize << setw(colWidth) << stats.boardsize * stats.boardsize
          << endl;
-    cout << setprecision(0) << setw(colWidth) << "Avg % of Board Used" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
+    cout << setprecision(0) << setw(colWidth) << "Avg % of BoardO Used" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
 
     //SECTION - Round Duration
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
@@ -568,4 +569,3 @@ void PrintResults(Stats stats)
     cout << setfill('*') << setw(3 * colWidth) << "*" << endl;
     cout << setfill(' ') << setw(3 * colWidth) << " " << endl;
 }
-//y 1 1 6 3

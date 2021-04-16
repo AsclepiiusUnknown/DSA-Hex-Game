@@ -6,10 +6,8 @@ using namespace std;
 class MonteCarloPlayer : public Player
 {
 public:
-    MonteCarloPlayer(int t, string symbol = "Undefined (ERROR)", double times = 2500, string name = "Monte Carlo") :
-            Player(t, symbol, name), times(times)
-    {
-    }
+    MonteCarloPlayer(int t, string symbol = "Undefined (ERROR)", double times = 2500, string name = "Monte Carlo") : Player(t, symbol, name), times(times)
+    {}
 
     int player = type, opponent = -type, bs;
     double times;
@@ -33,13 +31,12 @@ bool MonteCarloPlayer::GetMove(Board *board, int &x, int &y)
         return false;
     }
 
-    bs = board->getBoardSize();
+    bs = board->GetBoardSize();
     Move m = BestMove(board);
     x = m.x;
     y = m.y;
 
-    //Check if our coordinate values are valid and log an error if not
-    if (!board->validInput(x, y))
+    if (!board->IsValidInput(x, y))
     {
         cout << "ERROR: Monte Carlo input was invalid" << endl;
         return false;
@@ -58,12 +55,12 @@ Move MonteCarloPlayer::BestMove(Board *board)
         {
             board->printCoord(r + 1, c + 1, false);
 
-            if (board->grid[r][c] == 1)
+            if (board->GridValue(r, c) == 1)
             {
                 cout << setw(8) << "X" << endl;
                 continue;
             }
-            else if (board->grid[r][c] == -1)
+            else if (board->GridValue(r, c) == -1)
             {
                 cout << setw(12) << "O" << endl;
                 continue;
@@ -137,7 +134,7 @@ double MonteCarloPlayer::Expansion(int playerType, Board board, double depth)
 
 Cell MonteCarloPlayer::RandomMove(Board board)
 {
-    vector<Cell> spots = board.getFreeCells();
+    vector<Cell> spots = board.GetEmpty();
 
     int i = rand() % spots.size();
     int x = spots[i].x;
