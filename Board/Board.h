@@ -58,7 +58,6 @@ public:
         emptyCells = cboard.emptyCells;
     }
 
-    //SECTION - Spots
     void addCells();
 
     void PrintCells(vector <Cell> cells);
@@ -76,7 +75,6 @@ public:
     void RemoveEmptyCell(int x, int y);
 
 
-    //SECTION - Board
     int GetBoardSize()
     {
         return boardSize;
@@ -87,7 +85,6 @@ public:
     bool isBoardFull();
 
 
-    //SECTION - Grid
     int GridValue(int x, int y)
     {
         return grid[x][y];
@@ -99,7 +96,6 @@ public:
     }
 
 
-    //SECTION - Neighbours
     stack <Cell> CheckNeighbours(int target, int x, int y);
 
     bool isInVector(vector <Cell> v, Cell e);
@@ -109,7 +105,6 @@ public:
     void PrintNeighbours(stack <Cell> s);
 
 
-    //SECTION - Moving
     bool AddTestMove(int playerIndex, int x, int y);
 
     bool AddMove(int playerIndex, int x, int y);
@@ -117,7 +112,6 @@ public:
     bool IsValidInput(int x, int y);
 
 
-    //SECTION - Win Checking
     int Evaluation(int player, int opponent);
 
     bool CheckForWin(int playerType);
@@ -127,7 +121,6 @@ public:
     bool DepthFirstSearch(int playerType);
 
 
-    //SECTION - Other
     int MoveNumber()
     { return (((boardSize * boardSize) - EmptySize()) + 1); }
 

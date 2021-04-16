@@ -22,23 +22,20 @@ int HexGame::Play(bool showAll, int startPlayer)
     if (!showAll)
         system("CLS");
 
-    bool won = false; //By default, no one has won
-    board->PrintBoard(); //Print the game board to the screen
-    board->addCells(); //Initialise the list of free spots
+    bool won = false;
+    board->PrintBoard();
+    board->addCells();
     board->SetTurn(startPlayer);
 
-    //Loop until someone has won or the board has been filled
     while (!won && !board->isBoardFull())
     {
-        int playerType = board->GetTurn(); //Determine who's turn it is
+        int playerType = board->GetTurn();
         int playerIndex = (playerType == player[0]->GetType()) ? 0 : 1;
         int x = -1;
         int y = -1;
 
-        //Get the coordinates of the move from the appropriate player
         if (!player[playerIndex]->GetMove(board, x, y))
         {
-            //Debug if we are unable to make the move due to an error or full board
             cout << "ERROR: No available move for ";
             board->printCoord(x + 1, y + 1, false);
             cout << endl;
@@ -48,16 +45,14 @@ int HexGame::Play(bool showAll, int startPlayer)
         if (!showAll)
             system("CLS");
 
-        //Display the move that was made
         cout << player[playerIndex]->GetSymbol() << " played ";
         board->printCoord(x + 1, y + 1, false);
 
-        //Add the move to our board
         if (!board->AddMove(playerType, x, y))
             return 0;
 
-        board->PrintBoard(); //Print the new board (old board + this move)
-        won = board->CheckForWin(playerType); //Check to see if this player has just won. If so, end the game and tell the players
+        board->PrintBoard();
+        won = board->CheckForWin(playerType);
         if (won)
         {
             cout << player[playerIndex]->GetName() << " player wins!" << endl;

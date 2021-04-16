@@ -286,5 +286,5 @@ stack <PathCell> MinimaxPlayer::ReconstructPath(PathCell src, PathCell final)
     printf("\nReconstruction End with Failure\n");
     return path;
 }
-//endregion
+
 #endif /* MINIMAX_H_ */

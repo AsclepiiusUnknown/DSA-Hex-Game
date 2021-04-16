@@ -1,4 +1,3 @@
-//region Headers
 using namespace std;
 
 #include "chrono"
@@ -17,12 +16,11 @@ using namespace std;
 #include "Board/Board.cpp"
 #include "Players/Player.h"
 #include "HexGame.h"
-#include "Players/Minimax/MinimaxPlayer.h"
+#include "Players/MinimaxPlayer.h"
 #include "Players/AStarPlayer.h"
 #include "Players/HumanPlayer.h"
 #include "Players/RandomPlayer.h"
 #include "Players/MonteCarloPlayer.h"
-//endregion
 
 struct Setup
 {
@@ -59,8 +57,6 @@ int main()
     system("CLS");
     srand(time(nullptr));
 
-    //region Pre-Game Input
-    //SECTION - AI Simulation Check
     string yesNo;
     Setup setup;
     cout << "Do you want to run an AI Simulation? [y/n] (use capitals if you want to see all moves)" << endl;
@@ -153,14 +149,11 @@ int main()
 
 Setup Human()
 {
-    //region Pre-Game Input
-    //SECTION - Get Input for who the player wants to verse (default is of type RandomPlayer)
     int p2Type = 1;
     cout << "Who do you want to verse? (0 = another player, 1 = Random AI, 2 = Monte-Carlo AI, 3 = Minimax AI)" << endl;
     cin >> p2Type;
     system("CLS");
 
-    //SECTION - Monte-Carlo AI Accuracy Input
     double accuracy = 2.5;
     if (p2Type == 2 || p2Type == 3)
     {
@@ -173,7 +166,6 @@ Setup Human()
         system("CLS");
     }
 
-    //SECTION - Get input for the size of the board. When using Minimax, this is restricted to a board of either 3 or 4
     int boardSize = 5;
     if (p2Type == 3)
     {
@@ -195,51 +187,47 @@ Setup Human()
             boardSize = 15;
         system("CLS");
     }
-    //endregion
 
-    //region Game Setup
-    //SECTION - Setup the players based off of the input from above.
     auto *board = new Board(boardSize);
     Player *p1 = new HumanPlayer(1, "Crosses (X)");
     Player *p2;
 
     switch (p2Type)
     {
-        case 0:     //Human Player 2 (not AI)
+        case 0:
         {
             p2 = new HumanPlayer(-1, "Naughts (O)");
             break;
         }
-        case 1:     //Random Player 2 (simple AI that chooses random empty position)
+        case 1:
         {
             p2 = new RandomPlayer(-1, "Naughts (O)");
             break;
         }
-        case 2:     //Monte Carlo Player 2 (Medium AI that takes samples of random positions and chooses the best one through heuristic analysis)
+        case 2:
         {
             accuracy *= 1000;
             p2 = new MonteCarloPlayer(-1, "Naughts (O)", accuracy);
             break;
         }
-        case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
+        case 3:
         {
             p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy) * (0.25 * boardSize));
             break;
         }
-        case 4:     //A* Player 2 (Experimental AI)
+        case 4:
         {
             p2 = new AStarPlayer(-1, "Naughts (O)");
             break;
         }
 
-        default:    //Choose Random Player 2 in the case of an error such as invalid input
+        default:
         {
             cout << "That was invalid so I'll choose Bad AI for you" << endl;
             p2 = new RandomPlayer(-1, "Naughts (O)");
             break;
         }
     }
-    //endregion
 
     Setup setup;
     setup.p1 = p1;
@@ -252,21 +240,16 @@ Setup Human()
 
 Setup Simulation()
 {
-    //region Pre-Game Input
-    //SECTION - Get Input for player 1 (default is of type RandomPlayer)
     int p1Type = 1;
     cout << "Who do you want as player 1? (1 = Bad AI, 2 = Better AI, 3 = Best AI)" << endl;
     cin >> p1Type;
     system("CLS");
 
-
-    //SECTION - Get Input for player 2 (default is of type RandomPlayer)
     int p2Type = 1;
     cout << "Who do you want as player 2? (1 = Bad AI, 2 = Better AI, 3 = Best AI)" << endl;
     cin >> p2Type;
     system("CLS");
 
-    //SECTION - AI1 Accuracy Input
     double accuracy1 = 2.5;
     if (p1Type == 2 || p1Type == 3)
     {
@@ -279,7 +262,6 @@ Setup Simulation()
         system("CLS");
     }
 
-    //SECTION - AI2 Accuracy Input
     double accuracy2 = 2.5;
     if (p2Type == 2 || p2Type == 3)
     {
@@ -292,7 +274,6 @@ Setup Simulation()
         system("CLS");
     }
 
-    //SECTION - Get input for the size of the board
     int boardSize = 10;
     if (p2Type == 3 || p1Type == 3)
     {
@@ -315,7 +296,6 @@ Setup Simulation()
         system("CLS");
     }
 
-    //SECTION - Get No. of times to run the Simulation
     int times = 10;
     cout << "How many times did you want to run the Simulation? (Between 1 and 100)" << endl;
     cin >> times;
@@ -324,38 +304,35 @@ Setup Simulation()
     else if (boardSize > 100)
         boardSize = 100;
     system("CLS");
-    //endregion
 
-    //region Game Setup
-    //SECTION - Setup the players based off of the input from above.
     auto *board = new Board(boardSize);
     Player *p1;
     Player *p2;
 
     switch (p1Type)
     {
-        case 1:     //Random Player 1 (simple AI that chooses random empty position)
+        case 1:
         {
             p1 = new RandomPlayer(1, "Crosses (X)");
             break;
         }
-        case 2:     //Monte Carlo Player 1 (Medium AI that takes samples of random positions and chooses the best one through heuristic analysis)
+        case 2:
         {
             p1 = new MonteCarloPlayer(1, "Crosses (X)", accuracy1 * 1000);
             break;
         }
-        case 3:     //Minimax Player 1 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
+        case 3:
         {
             p1 = new MinimaxPlayer(1, "Crosses (X)", static_cast<double>(accuracy1) * (0.25 * boardSize));
             break;
         }
-        case 4:     //Negascout Player 1 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better Play on big boards
+        case 4:
         {
             p1 = new AStarPlayer(1, "Crosses (X)");
             break;
         }
 
-        default:    //Choose Random Player 1 in the case of an error such as invalid input
+        default:
         {
             cout << "That was invalid so I'll choose Bad AI for you" << endl;
             p1 = new RandomPlayer(1, "Crosses (X)");
@@ -365,35 +342,34 @@ Setup Simulation()
 
     switch (p2Type)
     {
-        case 1:     //Random Player 2 (simple AI that chooses random empty position)
+        case 1:
         {
             p2 = new RandomPlayer(-1, "Naughts (O)");
             break;
         }
-        case 2:     //Monte Carlo Player 2 (Medium AI that takes samples of random positions and chooses the best one through heuristic analysis)
+        case 2:
         {
             p2 = new MonteCarloPlayer(-1, "Naughts (O)", accuracy2 * 1000);
             break;
         }
-        case 3:     //Minimax Player 2 (Hard AI that simulates all possible moves from the current state and chooses the one that leads to the fastes win)
+        case 3:
         {
             p2 = new MinimaxPlayer(-1, "Naughts (O)", static_cast<double>(accuracy2) * (0.25 * boardSize));
             break;
         }
-        case 4:     //Negascout Player 2 (Experimental variation of Minimax with aimed at being more efficient whilst also being more accurate, hopefully allowing for better Play on big boards
+        case 4:
         {
             p2 = new AStarPlayer(-1, "Naughts (O)");
             break;
         }
 
-        default:    //Choose Random Player 2 in the case of an error such as invalid input
+        default:
         {
             cout << "That was invalid so I'll choose Bad AI for you" << endl;
             p2 = new RandomPlayer(-1, "Naughts (O)");
             break;
         }
     }
-    //endregion
 
     Setup setup;
     setup.p1 = p1;
@@ -408,32 +384,20 @@ Setup Simulation()
 
 void PrintResults(Stats stats)
 {
-    //region Setup
-    //HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
     int colWidth = 20;
-    //table header
     cout << endl << setfill('*') << setw(3 * colWidth) << "*" << endl;
     cout << setfill(' ') << fixed;
 
     cout << setw(colWidth) << "" << setw(colWidth);
-    //SetConsoleTextAttribute(hConsole, 12);//RED
     cout << "X Results" << setw(colWidth);
-    //SetConsoleTextAttribute(hConsole, 9);//BLUE
     cout << "O Results" << endl;
-    //SetConsoleTextAttribute(hConsole, 15);//WHITE
 
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;
-    //endregion
 
-    //region Data
-    //region Player Info
-    //SECTION - Player Type
     cout << setprecision(0) << setw(colWidth) << "PLAYER INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
     cout << setprecision(0) << setw(colWidth) << "Player Type" << setprecision(4) << setw(colWidth) << stats.p1Name << setw(colWidth) << stats.p2Name << endl;
 
-    //SECTION - Accuracy
     if (stats.p1Accuracy == 0 && stats.p2Accuracy == 0)
         cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << "N/A" << setw(colWidth) << "N/A" << endl;
     else if (stats.p1Accuracy == 0)
@@ -442,14 +406,11 @@ void PrintResults(Stats stats)
         cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << stats.p1Accuracy << setw(colWidth) << "N/A" << endl;
     else
         cout << setprecision(0) << setw(colWidth) << "Preset Accuracy" << setprecision(4) << setw(colWidth) << stats.p1Accuracy << setw(colWidth) << stats.p2Accuracy << endl;
-    //endregion
 
-    //region WIN INFO
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;
     cout << setprecision(0) << setw(colWidth) << "WIN INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
 
-    //Loop through all the wins, counting for each side and making a list of the winning indices (for later)
     vector<int> xIndices, oIndices;
     int xWins = 0, oWins = 0;
     for (int i = 0; i < stats.wins.size(); i++)
@@ -466,18 +427,14 @@ void PrintResults(Stats stats)
         }
     }
 
-    //SECTION - Win-Count
     cout << setprecision(0) << setw(colWidth) << "No. of Wins" << setprecision(4) << setw(colWidth) << xWins << setw(colWidth) << oWins << endl;
 
-    //SECTION - Win Percent
     int xPct = round((xWins / stats.wins.size()) * 100);
     int oPct = round((oWins / stats.wins.size()) * 100);
     string xPctString = std::to_string(xPct) + "%";
     string oPctString = std::to_string(oPct) + "%";
     cout << setprecision(0) << setw(colWidth) << "% of Wins" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
-    //endregion
 
-    //region TURN INFO
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;
     cout << setprecision(0) << setw(colWidth) << "TURN INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
@@ -485,11 +442,9 @@ void PrintResults(Stats stats)
     int xTurns = 0, oTurns = 0;
     vector<int> xTurnsTaken, oTurnsTaken;
 
-    //SECTION - Turns for each round
-    //Loop through the Turns and print the turns for each round
     for (int i = 0; i < stats.turnsTaken.size(); i++)
     {
-        if (stats.turnsTaken[i] % 2 == 0)   //Check if its an even number
+        if (stats.turnsTaken[i] % 2 == 0)
         {
             xTurns += (stats.turnsTaken[i] / 2);
             oTurns += (stats.turnsTaken[i] / 2);
@@ -498,7 +453,7 @@ void PrintResults(Stats stats)
             xTurnsTaken.push_back(stats.turnsTaken[i] / 2);
             oTurnsTaken.push_back(stats.turnsTaken[i] / 2);
         }
-        else //If not, then split the odd accordingly
+        else
         {
             int halfway = round(stats.turnsTaken[i] / 2);
             xTurns += stats.turnsTaken[i] - halfway;
@@ -510,15 +465,12 @@ void PrintResults(Stats stats)
         }
     }
 
-    //SECTION - Total Number or Turns
     cout << setprecision(0) << setw(colWidth) << "Total Turns" << setprecision(4) << setw(colWidth) << xTurns << setw(colWidth) << oTurns << endl;
 
-    //SECTION - Average number of turns per round
     int xAvg = round(xTurns / stats.turnsTaken.size());
     int oAvg = round(oTurns / stats.turnsTaken.size());
     cout << setprecision(0) << setw(colWidth) << "Average Turns" << setprecision(4) << setw(colWidth) << xAvg << setw(colWidth) << oAvg << endl;
 
-    //SECTION - Avg Turns Per Win
     int xWinTurns = 0;
     for (int i:xIndices)
     {
@@ -535,10 +487,7 @@ void PrintResults(Stats stats)
     if (oWins != 0)
         oWinTurns = oWinTurns / oWins;
     cout << setprecision(0) << setw(colWidth) << "Avg Turns Per Win" << setprecision(4) << setw(colWidth) << xWinTurns << setw(colWidth) << oWinTurns << endl;
-    //endregion
 
-
-    //SECTION - BoardO Info
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;
     xPct = round((static_cast<double>(xAvg) / (stats.boardsize * stats.boardsize)) * 100);
@@ -551,7 +500,6 @@ void PrintResults(Stats stats)
          << endl;
     cout << setprecision(0) << setw(colWidth) << "Avg % of BoardO Used" << setprecision(4) << setw(colWidth) << xPctString << setw(colWidth) << oPctString << endl;
 
-    //SECTION - Round Duration
     cout << setfill('~') << setw(3 * colWidth) << "~" << endl;
     cout << setfill(' ') << fixed;
     cout << setprecision(0) << setw(colWidth) << "TIME INFORMATION:" << setprecision(4) << " " << setw(colWidth) << " " << setw(colWidth) << endl;
@@ -564,7 +512,6 @@ void PrintResults(Stats stats)
     }
     totalDur = round(totalDur / stats.durations.size());
     cout << setprecision(0) << setw(colWidth) << "Avg Round Duration" << setprecision(4) << setw(colWidth) << "(Seconds)" << setw(colWidth) << totalDur << endl;
-    //endregion
 
     cout << setfill('*') << setw(3 * colWidth) << "*" << endl;
     cout << setfill(' ') << setw(3 * colWidth) << " " << endl;

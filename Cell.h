@@ -49,7 +49,7 @@ public:
     {}
 };
 
-class ASCell //For use in AStar
+class ASCell
 {
 private:
     double f, g, h;
