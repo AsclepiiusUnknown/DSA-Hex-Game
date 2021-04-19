@@ -13,7 +13,7 @@ bool MinimaxPlayer::GetMove(Board *board, int &x, int &y)
 
     bs = board->GetBoardSize();
     WIN_VAL = bs + 2;
-    
+
     Move m = BestMove(board);
     x = m.x;
     y = m.y;
@@ -87,7 +87,9 @@ double MinimaxPlayer::Minimax(Board board, double depth, bool isMax, double A, d
     }
     else if (depth >= maxDepth)
     {
-        return Heuristic(board) - depth;
+        double h = Heuristic(board) - depth;
+        //cout << "Heuristic is: " << h << endl;
+        return h;
     }
 
     //random_shuffle(emptyCells.begin(), emptyCells.end()); //todo********** add when functional!
@@ -140,8 +142,6 @@ double MinimaxPlayer::Minimax(Board board, double depth, bool isMax, double A, d
     if ((bestVal == MAX || bestVal == MIN))
         printf("\nERROR: BestUtil was never changed so no value was given to the move.");
 
-    if (depth == 0)
-        cout << "\n BEST: " << bestVal << " DEPTH: " << depth << endl;
     return bestVal;
 }
 
@@ -182,12 +182,97 @@ double MinimaxPlayer::Heuristic(Board board)
             stack <Cell> n = board.CheckNeighbours(player, current.x, current.y);
             while (!n.empty())
             {
-                if (n.top().x == -1 || n.top().y == -1)//todo whats this for?????
-                    return type;
+//                if (n.top().x == -1 || n.top().y == -1)//todo whats this for?????
+//                    return type;
 
-                if (board.isInVector(visited, n.top()))
+                if (!board.isInVector(visited, n.top()))
                 {
                     path.push(n.top());
+                }
+
+                if (player == 1)
+                {
+                    thisScore[n.top().x] = true;
+                }
+                else
+                {
+                    thisScore[n.top().y] = true;
+                }
+
+                n.pop();
+            }
+        }
+        int k = 0;
+        for (; k < bs; k++)
+            if (!thisScore[k])
+                break;
+
+        double value = (((double) k * 2.0) - (double) thisLength);
+
+        if (value > bestScore)
+            bestScore = k;
+    }
+
+    return
+            bestScore;
+}
+
+double MinimaxPlayer::Heuristic2(Board board)
+{
+    bool thisScore[bs];
+    int bestScore = 0;
+    int thisLength = 0;
+
+    for (int i = 0; i < bs; i++)
+    {
+        for (int j = 0; j < bs; j++)
+            thisScore[j] = false;
+
+        stack <Cell> path;
+        vector <Cell> visited;
+
+        if (player == 1 && board.GetGrid()[0][i] == player)
+        {
+            path.push(Cell(0, i));
+            thisScore[0] = true;
+        }
+        else if (player == -1 && board.GetGrid()[i][0] == player)
+        {
+            path.push(Cell(i, 0));
+            thisScore[0] = true;
+        }
+        else
+            continue;
+
+        thisLength++;
+
+        while (!path.empty())
+        {
+            Cell current = path.top();
+            path.pop();
+            visited.push_back(current);
+
+            stack <Cell> n = board.CheckNeighbours(player, current.x, current.y);
+            while (!n.empty())
+            {
+                if (!board.isInVector(visited, n.top()))
+                {
+                    path.push(n.top());
+
+                    if (player == 1)
+                    {
+                        if (n.top().y == current.y)
+                            thisLength++;
+                        else
+                            thisLength += 1.5;
+                    }
+                    else
+                    {
+                        if (n.top().x == current.x)
+                            thisLength++;
+                        else
+                            thisLength += 1.5;
+                    }
                 }
 
                 if (player == 1)

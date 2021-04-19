@@ -272,12 +272,12 @@ Setup Simulation()
     int boardSize = 10;
     if (p2Type == 3 || p1Type == 3)
     {
-        cout << "Input the size of board: (NOTE: When using Minimax the only boards are 3, 4, or 5)" << endl;
+        cout << "Input the size of board: (NOTE: When using Minimax the only boards are 3, 4, 5, or 6)" << endl;
         cin >> boardSize;
         if (boardSize < 3)
             boardSize = 3;
-        else if (boardSize > 5)
-            boardSize = 5;
+        else if (boardSize > 6)
+            boardSize = 6;
         system("CLS");
     }
     else

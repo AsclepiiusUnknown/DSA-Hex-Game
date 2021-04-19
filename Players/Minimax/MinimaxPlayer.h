@@ -28,6 +28,8 @@ public:
     double Minimax(Board board, double depth, bool isMax, double A, double B);
 
     double Heuristic(Board board);
+
+    double Heuristic2(Board board);
 };
 
 #endif //MINIMAXPLAYER_H
