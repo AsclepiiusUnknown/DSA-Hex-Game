@@ -1,9 +1,3 @@
-# DSA Hex Human
-
-
-It was created as the first assignment for
-the [Data Structures and Algorithms unit at WSU](http://handbook.westernsydney.edu.au/hbook/unit.aspx?unit=300103.3).
-
 # DSA Hex Game
 
 A fast-paced turn-based game with several advanced algorithms to verse.
